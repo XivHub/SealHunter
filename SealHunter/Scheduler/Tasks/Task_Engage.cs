@@ -120,9 +120,25 @@ public static class Task_Engage
         tm.Enqueue(() => target == null || TargetingHelper.TargetIsDead(),
             "Wait for kill", new TaskManagerConfiguration { TimeLimitMS = Plugin.C.CombatTimeoutSeconds * 1000, AbortOnTimeout = false });
 
+        // Stop attacking the instant the mob dies, so autorotation can't tag another while we wait.
         tm.Enqueue(() =>
         {
             Plugin.CombatBackend.Disable();
+            return true;
+        }, "Disengage");
+
+        // The hunting-log credit lags the death by a moment. Wait for the count to actually update
+        // before deciding whether another mob is needed — otherwise we over-kill by one.
+        var killedBefore = entry.Killed;
+        tm.Enqueue(() =>
+        {
+            if (target == null) return true;
+            var r = HuntPlan.Refresh(entry);
+            return r == null || r.Killed > killedBefore;
+        }, "Wait for kill credit", new TaskManagerConfiguration { TimeLimitMS = 8000, AbortOnTimeout = false });
+
+        tm.Enqueue(() =>
+        {
             if (target == null)
             {
                 Plugin.Telemetry?.Log("kill-confirm: target lost/null before kill");
@@ -131,7 +147,7 @@ public static class Task_Engage
 
             // Re-evaluate against live progress (handles stray-aggro kills that didn't advance the count).
             var refreshed = HuntPlan.Refresh(entry);
-            Plugin.Telemetry?.Log($"kill-confirm: prevKilled={entry.Killed} now={(refreshed?.Killed.ToString() ?? "complete")} tgtDead={TargetingHelper.TargetIsDead()} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
+            Plugin.Telemetry?.Log($"kill-confirm: prevKilled={entry.Killed} now={(refreshed?.Killed.ToString() ?? "complete")} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
             if (refreshed == null)
             {
                 // Entry complete: move on.
