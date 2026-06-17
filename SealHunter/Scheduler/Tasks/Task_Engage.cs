@@ -38,16 +38,6 @@ public static class Task_Engage
         const long locateWindowMs = 15000;
         var lastPathPos = Vector3.Zero;
 
-        tm.Enqueue(() =>
-        {
-            if (Player.Mounted)
-            {
-                MountHelper.Dismount();
-                return !Player.Mounted;
-            }
-            return true;
-        }, "Dismount", new TaskManagerConfiguration { TimeLimitMS = 8000, AbortOnTimeout = false });
-
         // Locate within a bounded window; if nothing appears, treat the camp as empty for now.
         tm.Enqueue(() =>
         {
@@ -85,30 +75,57 @@ public static class Task_Engage
             if (target == null) return true;
             TargetingHelper.SetTarget(target);
             var dist = Vector3.Distance(Player.Position, target.Position);
+
             if (dist <= Plugin.C.MaxEngageRange)
             {
+                // In range: land before finishing so we never try to fight while airborne.
+                if (Player.Mounted)
+                {
+                    if (EzThrottler.Throttle("SH.Land", 1000)) MountHelper.Dismount();
+                    return false;
+                }
+                if (Player.IsJumping) return false; // still falling/landing
                 Plugin.Navmesh.Stop();
                 return true;
             }
-            // While far, ride the existing path (only repath if the navmesh stalled) — chasing a
-            // distant mob's per-second position just fights its wander AI. Only once we're close does
-            // re-tracking its movement actually matter.
+
+            // Elevated target (e.g. Ixali platforms) needs a flying approach.
+            var heightDiff = Math.Abs(target.Position.Y - Player.Position.Y);
+            var needFly = Plugin.C.UseFlight && heightDiff > 5f
+                          && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
+            if (needFly && !Player.Mounted && !Player.Mounting)
+            {
+                if (EzThrottler.Throttle("SH.ApproachMount", 3000)) MountHelper.Mount();
+                return false;
+            }
+
+            // While far, ride the existing path (only repath if stalled); only re-track once close.
             var idle = !Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning();
-            var close = dist <= 15f;
+            var closeBy = dist <= 15f;
             var moved = Vector3.Distance(target.Position, lastPathPos) > 3f;
-            if ((idle || (close && moved)) && EzThrottler.Throttle("SH.Approach", 700))
+            if ((idle || (closeBy && moved)) && EzThrottler.Throttle("SH.Approach", 700))
             {
                 lastPathPos = target.Position;
-                var dest = StandoffPoint(target.Position, Player.Position, Plugin.C.MaxEngageRange);
-                Plugin.Navmesh.PathfindAndMoveTo(dest, false);
-                Plugin.Telemetry?.Log($"approach repath dist={dist:0} idle={idle} close={close} moved={moved}");
+                var flying = needFly && Player.Mounted;
+                // Flying: head straight to the mob; grounded: stop a standoff distance short.
+                var dest = flying ? target.Position : StandoffPoint(target.Position, Player.Position, Plugin.C.MaxEngageRange);
+                Plugin.Navmesh.PathfindAndMoveTo(dest, flying);
+                Plugin.Telemetry?.Log($"approach repath dist={dist:0} h={heightDiff:0} fly={flying} idle={idle}");
             }
             return false;
-        }, "Approach target", new TaskManagerConfiguration { TimeLimitMS = 60000, AbortOnTimeout = false });
+        }, "Approach target", new TaskManagerConfiguration { TimeLimitMS = 90000, AbortOnTimeout = false });
 
         tm.Enqueue(() =>
         {
             if (target == null) return true;
+            // Must be grounded to fight — land and wait if we're still mounted/airborne.
+            if (Player.Mounted)
+            {
+                if (EzThrottler.Throttle("SH.Land", 1000)) MountHelper.Dismount();
+                return false;
+            }
+            if (Player.IsJumping) return false;
+
             Plugin.Navmesh.Stop();
             SchedulerMain.State = BotState.Engaging;
             Plugin.CombatBackend.Enable();
