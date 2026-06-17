@@ -78,13 +78,18 @@ namespace SealHunter
             PluginInterface.UiBuilder.OpenMainUi += ToggleMainUi;
             PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUi;
             Framework.Update += OnFrameworkUpdate;
+            ClientState.Logout += OnLogout;
         }
 
         private void OnFrameworkUpdate(IFramework framework) => SchedulerMain.Tick();
 
+        // Stop on logout so a character switch never resumes the loop on a different character.
+        private void OnLogout(int type, int code) => SchedulerMain.DisablePlugin();
+
         public void Dispose()
         {
             Framework.Update -= OnFrameworkUpdate;
+            ClientState.Logout -= OnLogout;
             SchedulerMain.DisablePlugin();
             Telemetry.Dispose();
 
