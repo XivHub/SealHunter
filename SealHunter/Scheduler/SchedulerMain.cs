@@ -57,6 +57,10 @@ public static class SchedulerMain
     /// <summary>State to resume to after a transient pause (duty pop / player intervention) clears.</summary>
     private static BotState resumeState = BotState.NextTarget;
 
+    /// <summary>Until this tick, keep cancelling our own residual navmesh movement after a stop.
+    /// Bounded so we NEVER touch vnavmesh while idle long-term (that would hijack other plugins).</summary>
+    private static long stopGuardUntil;
+
     public static bool Running => State != BotState.Idle;
 
     public static bool EnablePlugin()
@@ -92,6 +96,7 @@ public static class SchedulerMain
         // pending, so a guarded Stop() would miss it and movement would resume.
         if (NavmeshIPC.Installed)
             Plugin.Navmesh.Stop();
+        stopGuardUntil = Environment.TickCount64 + 2000; // briefly cancel our own residual move only
         State = BotState.Idle;
         Helpers.ActivityLog.Warn_("Stopped.", chat: false);
         Plugin.Logger.Info("SealHunter stopped.");
@@ -104,8 +109,9 @@ public static class SchedulerMain
 
         if (State == BotState.Idle)
         {
-            // Safety net: if a pathfind completed after Stop() and restarted movement, halt it.
-            if (NavmeshIPC.Installed && Plugin.Navmesh.IsRunning())
+            // Only for a brief window after WE stopped — cancel our own residual pathfind. Never
+            // touch vnavmesh otherwise, or we'd hijack movement from other plugins (Questionable, etc.).
+            if (Environment.TickCount64 < stopGuardUntil && NavmeshIPC.Installed && Plugin.Navmesh.IsRunning())
                 Plugin.Navmesh.Stop();
             return;
         }
