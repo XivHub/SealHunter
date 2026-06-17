@@ -16,7 +16,6 @@ namespace SealHunter
         public int MaxConsecutiveScanFailures { get; set; } = 5;
 
         // Safety
-        public float MinDurabilityPercent { get; set; } = 20f;
         public bool StopOnDeath { get; set; } = false;
         public bool ReturnOnDeath { get; set; } = true;
         public bool PauseOnPlayerIntervention { get; set; } = true;

@@ -25,7 +25,6 @@ namespace SealHunter.Windows
 
             ImGui.Separator();
             ImGui.TextDisabled("Safety");
-            FloatInput("Stop below durability (%)", () => cfg.MinDurabilityPercent, v => cfg.MinDurabilityPercent = v);
             BoolInput("Stop on death", () => cfg.StopOnDeath, v => cfg.StopOnDeath = v);
             BoolInput("Return to home point on death", () => cfg.ReturnOnDeath, v => cfg.ReturnOnDeath = v);
             BoolInput("Pause when I take manual control", () => cfg.PauseOnPlayerIntervention, v => cfg.PauseOnPlayerIntervention = v);

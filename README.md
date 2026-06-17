@@ -63,8 +63,8 @@ bars, the duty-bound targets it can't reach, and a rolling activity log.
 5. Confirm the kill against live progress (re-tries on stray-aggro or empty camps), loop until the
    entry is done, then move to the next. Stop when all open-world entries are complete.
 
-It pauses for cutscenes / duty pops / manual control, recovers from death, and stops on low gear
-durability. All of these are configurable in the settings window.
+It pauses for cutscenes / duty pops / manual control and recovers from death. These behaviours are
+configurable in the settings window.
 
 ## Build
 

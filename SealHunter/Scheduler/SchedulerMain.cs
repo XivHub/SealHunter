@@ -117,13 +117,6 @@ public static class SchedulerMain
             return;
         }
 
-        if (DurabilityGuard.NeedsRepair(Plugin.C.MinDurabilityPercent))
-        {
-            Helpers.ActivityLog.Warn_($"Gear below {Plugin.C.MinDurabilityPercent:0}% durability — stopping. Repair and restart.");
-            DisablePlugin();
-            return;
-        }
-
         // Resume from a transient pause once the world is interactive again.
         if (State is BotState.PausedForDuty or BotState.PausedForPlayer)
         {
