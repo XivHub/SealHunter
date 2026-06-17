@@ -1,0 +1,16 @@
+{
+  "Author": "Zhyra",
+  "Name": "SealHunter",
+  "Punchline": "Automate your Grand Company hunting log.",
+  "Description": "Works through the three Grand Company hunting logs for you: teleports to the right zone, walks to each target with vnavmesh, and clears the required marks using BossMod Reborn autorotation. Requires vnavmesh, Lifestream, and BossMod Reborn.",
+  "RepoUrl": "https://github.com/edg-l/SealHunter",
+  "IconUrl": "https://raw.githubusercontent.com/edg-l/SealHunter/master/SealHunter/images/icon.png",
+  "InternalName": "SealHunter",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "grand company",
+    "hunting log",
+    "automation",
+    "seals"
+  ]
+}

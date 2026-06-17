@@ -1,0 +1,16 @@
+SealHunter
+Copyright (C) 2026 Zhyra
+
+This program is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later version.
+
+This product includes work adapted from the following projects:
+
+- Hunty (https://github.com/Infiziert90/Hunty), licensed AGPL-3.0.
+  The bundled Grand Company hunting-log target dataset and the MonsterNote
+  game-read patterns are derived from Hunty.
+
+- Questionable (https://github.com/afan0431/Questionable mirror; upstream by
+  Liza Carvelli). The BossMod autorotation preset recipe (Presets IPC usage and
+  the Overworld combat preset) is adapted from Questionable.

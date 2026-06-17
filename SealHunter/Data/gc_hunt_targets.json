@@ -1,0 +1,1846 @@
+{
+ "JobRanks": {
+  "10001": [
+   {
+    "Tasks": [
+     {
+      "Name": "Maelstrom 01",
+      "Monsters": [
+       {
+        "Id": 250,
+        "Name": "Amalj'aa Hunter",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 0,
+          "xCoord": 19.9,
+          "yCoord": 27.2
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 02",
+      "Monsters": [
+       {
+        "Id": 1354,
+        "Name": "Heckler Imp",
+        "Count": 5,
+        "Icon": 63004,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 1245,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 03",
+      "Monsters": [
+       {
+        "Id": 1188,
+        "Name": "Doctore",
+        "Count": 3,
+        "Icon": 63017,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 1245,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 04",
+      "Monsters": [
+       {
+        "Id": 1194,
+        "Name": "Firemane",
+        "Count": 1,
+        "Icon": 63054,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 1245,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 05",
+      "Monsters": [
+       {
+        "Id": 231,
+        "Name": "Sylvan Groan",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 19.7,
+          "yCoord": 21.6
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 06",
+      "Monsters": [
+       {
+        "Id": 230,
+        "Name": "Sylvan Sough",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 19.7,
+          "yCoord": 21.6
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 07",
+      "Monsters": [
+       {
+        "Id": 370,
+        "Name": "Kobold Pickman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 0,
+          "xCoord": 11.8,
+          "yCoord": 22.5
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 08",
+      "Monsters": [
+       {
+        "Id": 256,
+        "Name": "Amalj'aa Bruiser",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 0,
+          "xCoord": 24.9,
+          "yCoord": 20.7
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 09",
+      "Monsters": [
+       {
+        "Id": 210,
+        "Name": "Ixali Straightbeak",
+        "Count": 3,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 154,
+          "Map": 7,
+          "Zone": 0,
+          "xCoord": 23.0,
+          "yCoord": 28.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 10",
+      "Monsters": [
+       {
+        "Id": 660,
+        "Name": "Ixali Wildtalon",
+        "Count": 1,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 155,
+          "Map": 53,
+          "Zone": 0,
+          "xCoord": 30.9,
+          "yCoord": 27.8
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "Tasks": [
+     {
+      "Name": "Maelstrom 11",
+      "Monsters": [
+       {
+        "Id": 260,
+        "Name": "Amalj'aa Divinator",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 27.0,
+          "yCoord": 34.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 12",
+      "Monsters": [
+       {
+        "Id": 369,
+        "Name": "Kobold Pitman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 137,
+          "Map": 17,
+          "Zone": 0,
+          "xCoord": 28.0,
+          "yCoord": 26.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 13",
+      "Monsters": [
+       {
+        "Id": 1574,
+        "Name": "Temple Bat",
+        "Count": 5,
+        "Icon": 63020,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 1267,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 14",
+      "Monsters": [
+       {
+        "Id": 1580,
+        "Name": "the condemned",
+        "Count": 6,
+        "Icon": 63084,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 1267,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 15",
+      "Monsters": [
+       {
+        "Id": 1567,
+        "Name": "Teratotaur",
+        "Count": 1,
+        "Icon": 63109,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 1267,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 16",
+      "Monsters": [
+       {
+        "Id": 375,
+        "Name": "Kobold Bedesman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 180,
+          "Map": 30,
+          "Zone": 0,
+          "xCoord": 22.9,
+          "yCoord": 12.3
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 17",
+      "Monsters": [
+       {
+        "Id": 371,
+        "Name": "Kobold Priest",
+        "Count": 1,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 180,
+          "Map": 30,
+          "Zone": 0,
+          "xCoord": 22.9,
+          "yCoord": 12.3
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 18",
+      "Monsters": [
+       {
+        "Id": 65,
+        "Name": "Sylvan Sigh",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 23.0,
+          "yCoord": 21.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 19",
+      "Monsters": [
+       {
+        "Id": 386,
+        "Name": "Shelfscale Sahagin",
+        "Count": 3,
+        "Icon": 63095,
+        "Locations": [
+         {
+          "Terri": 138,
+          "Map": 18,
+          "Zone": 0,
+          "xCoord": 18.3,
+          "yCoord": 21.1
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 20",
+      "Monsters": [
+       {
+        "Id": 253,
+        "Name": "Amalj'aa Pugilist",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 20.0,
+          "yCoord": 23.0
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "Tasks": [
+     {
+      "Name": "Maelstrom 21",
+      "Monsters": [
+       {
+        "Id": 103,
+        "Name": "Ixali Boldwing",
+        "Count": 3,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 154,
+          "Map": 7,
+          "Zone": 0,
+          "xCoord": 21.0,
+          "yCoord": 20.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 22",
+      "Monsters": [
+       {
+        "Id": 67,
+        "Name": "Sylpheed Screech",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 32.3,
+          "yCoord": 14.4
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 23",
+      "Monsters": [
+       {
+        "Id": 1834,
+        "Name": "U'Ghamaro Bedesman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 180,
+          "Map": 30,
+          "Zone": 0,
+          "xCoord": 23.1,
+          "yCoord": 7.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 24",
+      "Monsters": [
+       {
+        "Id": 565,
+        "Name": "Trenchtooth Sahagin",
+        "Count": 3,
+        "Icon": 63095,
+        "Locations": [
+         {
+          "Terri": 138,
+          "Map": 18,
+          "Zone": 0,
+          "xCoord": 20.0,
+          "yCoord": 20.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 25",
+      "Monsters": [
+       {
+        "Id": 1828,
+        "Name": "Sapsa Shelfclaw",
+        "Count": 3,
+        "Icon": 63095,
+        "Locations": [
+         {
+          "Terri": 138,
+          "Map": 18,
+          "Zone": 0,
+          "xCoord": 15.8,
+          "yCoord": 14.3
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 26",
+      "Monsters": [
+       {
+        "Id": 1838,
+        "Name": "Zahar'ak Archer",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 27.1,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 27",
+      "Monsters": [
+       {
+        "Id": 1845,
+        "Name": "Natalan Fogcaller",
+        "Count": 4,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 155,
+          "Map": 53,
+          "Zone": 0,
+          "xCoord": 34.7,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 28",
+      "Monsters": [
+       {
+        "Id": 1843,
+        "Name": "Natalan Boldwing",
+        "Count": 5,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 155,
+          "Map": 53,
+          "Zone": 0,
+          "xCoord": 34.7,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 29",
+      "Monsters": [
+       {
+        "Id": 35,
+        "Name": "Tonberry",
+        "Count": 5,
+        "Icon": 63103,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 159,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Maelstrom 30",
+      "Monsters": [
+       {
+        "Id": 1549,
+        "Name": "Giant Bavarois",
+        "Count": 1,
+        "Icon": 63085,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 159,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "10002": [
+   {
+    "Tasks": [
+     {
+      "Name": "Order of the Twin Adder 01",
+      "Monsters": [
+       {
+        "Id": 247,
+        "Name": "Amalj'aa Javelinier",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 0,
+          "xCoord": 19.9,
+          "yCoord": 27.2
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 02",
+      "Monsters": [
+       {
+        "Id": 1354,
+        "Name": "Heckler Imp",
+        "Count": 5,
+        "Icon": 63004,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 1245,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 03",
+      "Monsters": [
+       {
+        "Id": 1189,
+        "Name": "Scythe Mantis",
+        "Count": 5,
+        "Icon": 63033,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 1245,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 04",
+      "Monsters": [
+       {
+        "Id": 1190,
+        "Name": "Coliseum Python",
+        "Count": 5,
+        "Icon": 63041,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 1245,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 05",
+      "Monsters": [
+       {
+        "Id": 229,
+        "Name": "Sylvan Scream",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 19.6,
+          "yCoord": 21.6
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 06",
+      "Monsters": [
+       {
+        "Id": 370,
+        "Name": "Kobold Pickman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 0,
+          "xCoord": 11.8,
+          "yCoord": 22.5
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 07",
+      "Monsters": [
+       {
+        "Id": 256,
+        "Name": "Amalj'aa Bruiser",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 0,
+          "xCoord": 24.9,
+          "yCoord": 20.7
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 08",
+      "Monsters": [
+       {
+        "Id": 209,
+        "Name": "Ixali Deftalon",
+        "Count": 3,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 154,
+          "Map": 7,
+          "Zone": 0,
+          "xCoord": 22.8,
+          "yCoord": 28.3
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 09",
+      "Monsters": [
+       {
+        "Id": 251,
+        "Name": "Amalj'aa Ranger",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 0,
+          "xCoord": 24.9,
+          "yCoord": 20.7
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 10",
+      "Monsters": [
+       {
+        "Id": 663,
+        "Name": "Ixali Fearcaller",
+        "Count": 1,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 155,
+          "Map": 53,
+          "Zone": 0,
+          "xCoord": 32.1,
+          "yCoord": 27.5
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "Tasks": [
+     {
+      "Name": "Order of the Twin Adder 11",
+      "Monsters": [
+       {
+        "Id": 252,
+        "Name": "Amalj'aa Sniper",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 26.0,
+          "yCoord": 34.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 12",
+      "Monsters": [
+       {
+        "Id": 373,
+        "Name": "Kobold Missionary",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 137,
+          "Map": 17,
+          "Zone": 0,
+          "xCoord": 28.0,
+          "yCoord": 26.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 13",
+      "Monsters": [
+       {
+        "Id": 376,
+        "Name": "Kobold Sidesman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 0,
+          "xCoord": 26.7,
+          "yCoord": 19.5
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 14",
+      "Monsters": [
+       {
+        "Id": 1575,
+        "Name": "Temple Bee",
+        "Count": 4,
+        "Icon": 63048,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 1267,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 15",
+      "Monsters": [
+       {
+        "Id": 1569,
+        "Name": "Temple Guardian",
+        "Count": 1,
+        "Icon": 63069,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 1267,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 16",
+      "Monsters": [
+       {
+        "Id": 377,
+        "Name": "Kobold Roundsman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 180,
+          "Map": 30,
+          "Zone": 0,
+          "xCoord": 22.0,
+          "yCoord": 14.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 17",
+      "Monsters": [
+       {
+        "Id": 66,
+        "Name": "Sylvan Snarl",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 22.9,
+          "yCoord": 21.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 18",
+      "Monsters": [
+       {
+        "Id": 384,
+        "Name": "Shelfclaw Sahagin",
+        "Count": 3,
+        "Icon": 63095,
+        "Locations": [
+         {
+          "Terri": 138,
+          "Map": 18,
+          "Zone": 0,
+          "xCoord": 18.3,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 19",
+      "Monsters": [
+       {
+        "Id": 245,
+        "Name": "Amalj'aa Lancer",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 21.0,
+          "yCoord": 20.6
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 20",
+      "Monsters": [
+       {
+        "Id": 1832,
+        "Name": "U'Ghamaro Roundsman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 180,
+          "Map": 30,
+          "Zone": 0,
+          "xCoord": 23.5,
+          "yCoord": 7.1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "Tasks": [
+     {
+      "Name": "Order of the Twin Adder 21",
+      "Monsters": [
+       {
+        "Id": 436,
+        "Name": "Ixali Windtalon",
+        "Count": 3,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 154,
+          "Map": 7,
+          "Zone": 0,
+          "xCoord": 20.0,
+          "yCoord": 20.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 22",
+      "Monsters": [
+       {
+        "Id": 69,
+        "Name": "Sylpheed Snarl",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 32.3,
+          "yCoord": 14.4
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 23",
+      "Monsters": [
+       {
+        "Id": 1833,
+        "Name": "U'Ghamaro Quarryman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 180,
+          "Map": 30,
+          "Zone": 0,
+          "xCoord": 23.1,
+          "yCoord": 7.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 24",
+      "Monsters": [
+       {
+        "Id": 1830,
+        "Name": "Sapsa Shelftooth",
+        "Count": 3,
+        "Icon": 63095,
+        "Locations": [
+         {
+          "Terri": 138,
+          "Map": 18,
+          "Zone": 0,
+          "xCoord": 17.0,
+          "yCoord": 15.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 25",
+      "Monsters": [
+       {
+        "Id": 1839,
+        "Name": "Zahar'ak Pugilist",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 27.1,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 26",
+      "Monsters": [
+       {
+        "Id": 1844,
+        "Name": "Natalan Swiftbeak",
+        "Count": 4,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 155,
+          "Map": 53,
+          "Zone": 0,
+          "xCoord": 34.7,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 27",
+      "Monsters": [
+       {
+        "Id": 1843,
+        "Name": "Natalan Boldwing",
+        "Count": 5,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 155,
+          "Map": 53,
+          "Zone": 0,
+          "xCoord": 34.7,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 28",
+      "Monsters": [
+       {
+        "Id": 35,
+        "Name": "Tonberry",
+        "Count": 7,
+        "Icon": 63103,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 159,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 29",
+      "Monsters": [
+       {
+        "Id": 1559,
+        "Name": "Bronze Beetle",
+        "Count": 6,
+        "Icon": 63021,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 159,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Order of the Twin Adder 30",
+      "Monsters": [
+       {
+        "Id": 1548,
+        "Name": "Keeper Of Halidom",
+        "Count": 1,
+        "Icon": 63062,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 159,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "10003": [
+   {
+    "Tasks": [
+     {
+      "Name": "Immortal Flames 01",
+      "Monsters": [
+       {
+        "Id": 250,
+        "Name": "Amalj'aa Hunter",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 0,
+          "xCoord": 19.9,
+          "yCoord": 27.2
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 02",
+      "Monsters": [
+       {
+        "Id": 1188,
+        "Name": "Doctore",
+        "Count": 3,
+        "Icon": 63017,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 1245,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 03",
+      "Monsters": [
+       {
+        "Id": 1194,
+        "Name": "Firemane",
+        "Count": 1,
+        "Icon": 63054,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 1245,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 04",
+      "Monsters": [
+       {
+        "Id": 1196,
+        "Name": "Thunderclap Guivre",
+        "Count": 1,
+        "Icon": 63053,
+        "Locations": [
+         {
+          "Terri": 145,
+          "Map": 22,
+          "Zone": 1245,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 05",
+      "Monsters": [
+       {
+        "Id": 230,
+        "Name": "Sylvan Sough",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 19.0,
+          "yCoord": 21.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 06",
+      "Monsters": [
+       {
+        "Id": 380,
+        "Name": "Kobold Footman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 0,
+          "xCoord": 11.0,
+          "yCoord": 22.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 07",
+      "Monsters": [
+       {
+        "Id": 370,
+        "Name": "Kobold Pickman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 0,
+          "xCoord": 11.8,
+          "yCoord": 22.5
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 08",
+      "Monsters": [
+       {
+        "Id": 259,
+        "Name": "Amalj'aa Seer",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 20.0,
+          "yCoord": 15.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 09",
+      "Monsters": [
+       {
+        "Id": 208,
+        "Name": "Ixali Lightwing",
+        "Count": 3,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 154,
+          "Map": 7,
+          "Zone": 0,
+          "xCoord": 22.0,
+          "yCoord": 28.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 10",
+      "Monsters": [
+       {
+        "Id": 662,
+        "Name": "Ixali Boundwing",
+        "Count": 1,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 155,
+          "Map": 53,
+          "Zone": 0,
+          "xCoord": 32.0,
+          "yCoord": 27.0
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "Tasks": [
+     {
+      "Name": "Immortal Flames 11",
+      "Monsters": [
+       {
+        "Id": 2155,
+        "Name": "Amalj'aa Halberdier",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 25.0,
+          "yCoord": 34.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 12",
+      "Monsters": [
+       {
+        "Id": 373,
+        "Name": "Kobold Missionary",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 137,
+          "Map": 17,
+          "Zone": 0,
+          "xCoord": 28.0,
+          "yCoord": 25.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 13",
+      "Monsters": [
+       {
+        "Id": 376,
+        "Name": "Kobold Sidesman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 0,
+          "xCoord": 26.7,
+          "yCoord": 19.5
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 14",
+      "Monsters": [
+       {
+        "Id": 1592,
+        "Name": "Sand Bat",
+        "Count": 3,
+        "Icon": 63020,
+        "Locations": [
+         {
+          "Terri": 141,
+          "Map": 21,
+          "Zone": 1303,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 15",
+      "Monsters": [
+       {
+        "Id": 1594,
+        "Name": "Sabotender Desertor",
+        "Count": 2,
+        "Icon": 63073,
+        "Locations": [
+         {
+          "Terri": 141,
+          "Map": 21,
+          "Zone": 1303,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 16",
+      "Monsters": [
+       {
+        "Id": 1585,
+        "Name": "Myrmidon Princess",
+        "Count": 1,
+        "Icon": 63076,
+        "Locations": [
+         {
+          "Terri": 141,
+          "Map": 21,
+          "Zone": 1303,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 17",
+      "Monsters": [
+       {
+        "Id": 562,
+        "Name": "Kobold Quarryman",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 180,
+          "Map": 30,
+          "Zone": 0,
+          "xCoord": 22.0,
+          "yCoord": 14.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 18",
+      "Monsters": [
+       {
+        "Id": 64,
+        "Name": "Sylvan Screech",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 19.6,
+          "yCoord": 21.6
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 19",
+      "Monsters": [
+       {
+        "Id": 389,
+        "Name": "Shelfspine Sahagin",
+        "Count": 3,
+        "Icon": 63095,
+        "Locations": [
+         {
+          "Terri": 138,
+          "Map": 18,
+          "Zone": 0,
+          "xCoord": 19.0,
+          "yCoord": 21.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 20",
+      "Monsters": [
+       {
+        "Id": 249,
+        "Name": "Amalj'aa Archer",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 20.0,
+          "yCoord": 23.0
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "Tasks": [
+     {
+      "Name": "Immortal Flames 21",
+      "Monsters": [
+       {
+        "Id": 436,
+        "Name": "Ixali Windtalon",
+        "Count": 3,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 154,
+          "Map": 7,
+          "Zone": 0,
+          "xCoord": 20.0,
+          "yCoord": 20.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 22",
+      "Monsters": [
+       {
+        "Id": 68,
+        "Name": "Sylpheed Sigh",
+        "Count": 3,
+        "Icon": 63075,
+        "Locations": [
+         {
+          "Terri": 152,
+          "Map": 5,
+          "Zone": 0,
+          "xCoord": 32.3,
+          "yCoord": 14.4
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 23",
+      "Monsters": [
+       {
+        "Id": 1835,
+        "Name": "U'Ghamaro Priest",
+        "Count": 3,
+        "Icon": 63071,
+        "Locations": [
+         {
+          "Terri": 180,
+          "Map": 30,
+          "Zone": 0,
+          "xCoord": 23.1,
+          "yCoord": 7.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 24",
+      "Monsters": [
+       {
+        "Id": 1829,
+        "Name": "Sapsa Shelfspine",
+        "Count": 3,
+        "Icon": 63095,
+        "Locations": [
+         {
+          "Terri": 138,
+          "Map": 18,
+          "Zone": 0,
+          "xCoord": 16.0,
+          "yCoord": 15.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 25",
+      "Monsters": [
+       {
+        "Id": 1840,
+        "Name": "Zahar'ak Thaumaturge",
+        "Count": 3,
+        "Icon": 63051,
+        "Locations": [
+         {
+          "Terri": 146,
+          "Map": 23,
+          "Zone": 0,
+          "xCoord": 27.1,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 26",
+      "Monsters": [
+       {
+        "Id": 1842,
+        "Name": "Natalan Windtalon",
+        "Count": 4,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 155,
+          "Map": 53,
+          "Zone": 0,
+          "xCoord": 34.7,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 27",
+      "Monsters": [
+       {
+        "Id": 1843,
+        "Name": "Natalan Boldwing",
+        "Count": 5,
+        "Icon": 63003,
+        "Locations": [
+         {
+          "Terri": 155,
+          "Map": 53,
+          "Zone": 0,
+          "xCoord": 34.7,
+          "yCoord": 20.8
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 28",
+      "Monsters": [
+       {
+        "Id": 35,
+        "Name": "Tonberry",
+        "Count": 8,
+        "Icon": 63103,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 159,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 29",
+      "Monsters": [
+       {
+        "Id": 1557,
+        "Name": "Corrupted Nymian",
+        "Count": 3,
+        "Icon": 63084,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 159,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Name": "Immortal Flames 30",
+      "Monsters": [
+       {
+        "Id": 1565,
+        "Name": "Soldier Of Nym",
+        "Count": 3,
+        "Icon": 63029,
+        "Locations": [
+         {
+          "Terri": 139,
+          "Map": 19,
+          "Zone": 159,
+          "xCoord": 0.0,
+          "yCoord": 0.0
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}
