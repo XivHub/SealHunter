@@ -2,7 +2,9 @@ using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.GameHelpers;
+using ECommons.Throttlers;
 using SealHunter.Helpers;
+using SealHunter.IPC;
 using SealHunter.Models;
 
 namespace SealHunter.Scheduler.Tasks;
@@ -28,11 +30,14 @@ public static class Task_KillOne
             if (Plugin.ClientState.TerritoryType == loc.Terri)
                 return true;
 
-            if (Plugin.Teleport.Installed)
+            if (Plugin.Teleport.IsBusy())
+                return false;
+
+            if (TeleportIPC.Installed && EzThrottler.Throttle("SH.Teleport", 2000))
             {
                 var aetheryte = AetheryteResolver.NearestAetheryte(loc.Map, loc.Terri, loc.MapCoords);
                 if (aetheryte != 0)
-                    Plugin.Teleport.Teleport(aetheryte);
+                    Plugin.Teleport.Teleport(aetheryte, 0);
             }
             return false;
         }, "Teleport to zone", new TaskManagerConfiguration { TimeLimitMS = 30000 });

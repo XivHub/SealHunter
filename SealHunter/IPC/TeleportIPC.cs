@@ -1,60 +1,26 @@
 using System;
-using Dalamud.Plugin.Ipc;
+using ECommons.EzIpcManager;
+using ECommons.Reflection;
 
+#nullable disable
 namespace SealHunter.IPC;
 
 /// <summary>
-/// Aetheryte teleport via the Teleporter plugin (Pohky) IPC, adapted from Hunty's TeleportConsumer.
-/// Teleporter is the proven aetheryte-by-id teleport provider; presence is probed via the
-/// "Teleport.ChatMessage" gate (cached 5s).
+/// Teleport via Lifestream's IPC. Lifestream owns the whole teleport (cast, wait, retry) and
+/// exposes <see cref="IsBusy"/>, so the loop issues ONE teleport and waits on IsBusy rather than
+/// re-firing the raw game teleport each frame (which spams "another teleport is already underway").
 /// </summary>
 public class TeleportIPC
 {
-    private bool available;
-    private long timeSinceLastCheck;
+    public const string Name = "Lifestream";
 
-    private readonly ICallGateSubscriber<bool> isInitialized;
-    private readonly ICallGateSubscriber<uint, byte, bool> teleport;
+    public TeleportIPC() => EzIPC.Init(this, Name, SafeWrapper.AnyException);
 
-    public TeleportIPC()
-    {
-        isInitialized = Plugin.PluginInterface.GetIpcSubscriber<bool>("Teleport.ChatMessage");
-        teleport = Plugin.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport");
-    }
+    public static bool Installed => DalamudReflector.TryGetDalamudPlugin(Name, out _, false, true);
 
-    public bool Installed
-    {
-        get
-        {
-            if (timeSinceLastCheck + 5000 > Environment.TickCount64)
-                return available;
+    /// <summary>Lifestream.Teleport(aetheryteId, subIndex) — returns whether it started.</summary>
+    [EzIPC] public Func<uint, byte, bool> Teleport;
 
-            try
-            {
-                timeSinceLastCheck = Environment.TickCount64;
-                isInitialized.InvokeFunc();
-                available = true;
-            }
-            catch
-            {
-                available = false;
-            }
-
-            return available;
-        }
-    }
-
-    /// <summary>Teleport to the given aetheryte RowId. Returns false if the provider is absent/unresponsive.</summary>
-    public bool Teleport(uint aetheryteId)
-    {
-        try
-        {
-            return teleport.InvokeFunc(aetheryteId, 0);
-        }
-        catch
-        {
-            Plugin.Logger.Warning("Teleport plugin is not responding");
-            return false;
-        }
-    }
+    /// <summary>Whether Lifestream is currently busy (teleporting / moving).</summary>
+    [EzIPC] public Func<bool> IsBusy;
 }

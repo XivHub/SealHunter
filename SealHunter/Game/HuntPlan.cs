@@ -28,17 +28,20 @@ public static class HuntPlan
         if (gcKey == 0 || !HuntTargetData.Data.JobRanks.TryGetValue(gcKey, out var ranks))
             return entries;
 
-        for (var r = 0; r < ranks.Count; r++)
-        {
-            foreach (var status in MonsterNoteReader.GetRankProgress(gcKey, r, ranks[r]))
-            {
-                if (status.Done || status.Monster.Locations.Count == 0)
-                    continue;
+        // Only the currently-unlocked rank is farmable: lower ranks are already complete, and higher
+        // ranks are gated behind Grand Company rank (killing their marks wouldn't count yet).
+        var currentRank = MonsterNoteReader.CurrentRank(gcKey);
+        if (currentRank < 0 || currentRank >= ranks.Count)
+            return entries;
 
-                entries.Add(new HuntEntry(
-                    gcKey, r, status.Monster, status.Monster.PrimaryLocation,
-                    status.Killed, status.Monster.Count));
-            }
+        foreach (var status in MonsterNoteReader.GetRankProgress(gcKey, currentRank, ranks[currentRank]))
+        {
+            if (status.Done || status.Monster.Locations.Count == 0)
+                continue;
+
+            entries.Add(new HuntEntry(
+                gcKey, currentRank, status.Monster, status.Monster.PrimaryLocation,
+                status.Killed, status.Monster.Count));
         }
 
         return entries;

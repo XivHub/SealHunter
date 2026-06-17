@@ -14,8 +14,8 @@ public static class Dependencies
 
         if (!NavmeshIPC.Installed)
             missing.Add("vnavmesh");
-        if (!Plugin.Teleport.Installed)
-            missing.Add("Teleporter");
+        if (!TeleportIPC.Installed)
+            missing.Add(TeleportIPC.Name);
         if (!Plugin.CombatBackend.Installed)
             missing.Add(Plugin.CombatBackend.Name);
 

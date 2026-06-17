@@ -29,6 +29,16 @@ public static unsafe class MonsterNoteReader
         _ => -1,
     };
 
+    /// <summary>The currently-unlocked hunting-log rank for this GC (0-based, matches the dataset index).
+    /// Higher ranks are gated behind Grand Company rank and are NOT yet farmable. Returns -1 if no GC.</summary>
+    public static int CurrentRank(uint gcKey)
+    {
+        var idx = MemoryIndex(gcKey);
+        if (idx < 0)
+            return -1;
+        return MonsterNoteManager.Instance()->RankData[idx].Rank;
+    }
+
     /// <summary>Kill progress for every monster in the given (0-based) rank of a GC log.</summary>
     public static List<MonsterStatus> GetRankProgress(uint gcKey, int rank, HuntingRank huntingRank)
     {

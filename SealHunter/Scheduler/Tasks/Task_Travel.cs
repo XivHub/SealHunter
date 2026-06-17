@@ -1,7 +1,9 @@
 using System.Numerics;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.GameHelpers;
+using ECommons.Throttlers;
 using SealHunter.Helpers;
+using SealHunter.IPC;
 
 namespace SealHunter.Scheduler.Tasks;
 
@@ -27,16 +29,20 @@ public static class Task_Travel
             if (Plugin.ClientState.TerritoryType == loc.Terri)
                 return true;
 
-            if (Plugin.Teleport.Installed)
+            // Lifestream owns the teleport; wait while it's working, issue once otherwise.
+            if (Plugin.Teleport.IsBusy())
+                return false;
+
+            if (TeleportIPC.Installed && EzThrottler.Throttle("SH.Teleport", 2000))
             {
                 var aetheryte = AetheryteResolver.NearestAetheryte(loc.Map, loc.Terri, loc.MapCoords);
                 if (aetheryte != 0)
-                    Plugin.Teleport.Teleport(aetheryte);
+                    Plugin.Teleport.Teleport(aetheryte, 0);
             }
             return false;
         }, "Teleport to zone", new TaskManagerConfiguration { TimeLimitMS = 30000 });
 
-        tm.Enqueue(() => Plugin.ClientState.TerritoryType == loc.Terri && !Player.IsBusy && Plugin.Navmesh.IsReady(),
+        tm.Enqueue(() => Plugin.ClientState.TerritoryType == loc.Terri && !Plugin.Teleport.IsBusy() && !Player.IsBusy && Plugin.Navmesh.IsReady(),
             "Wait for arrival + navmesh", new TaskManagerConfiguration { TimeLimitMS = 30000 });
 
         tm.Enqueue(() =>
