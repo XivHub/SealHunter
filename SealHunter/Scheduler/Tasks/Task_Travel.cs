@@ -50,11 +50,14 @@ public static class Task_Travel
         {
             SchedulerMain.CurrentHint = MapCoords.WorldHint(loc.Terri, loc.Map, loc.xCoord, loc.yCoord);
             SchedulerMain.State = BotState.Navigating;
-            if (Plugin.C.UseMount && Vector3.Distance(Player.Position, SchedulerMain.CurrentHint) > MountDistance)
+            var dist = Vector3.Distance(Player.Position, SchedulerMain.CurrentHint);
+            var fly = Plugin.C.UseFlight && Player.CanFly;
+            // Mounting is needed to fly; also mount for long ground runs.
+            if ((Plugin.C.UseMount || fly) && dist > MountDistance && !Player.Mounted)
                 MountHelper.Mount();
-            Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, false);
+            Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, fly);
             EzThrottler.Throttle("SH.RepathTravel", 3000); // prime: don't re-issue immediately
-            Plugin.Telemetry?.Log($"travel: pathfind to camp hint=({SchedulerMain.CurrentHint.X:0},{SchedulerMain.CurrentHint.Y:0},{SchedulerMain.CurrentHint.Z:0}) dist={Vector3.Distance(Player.Position, SchedulerMain.CurrentHint):0}");
+            Plugin.Telemetry?.Log($"travel: pathfind to camp hint=({SchedulerMain.CurrentHint.X:0},{SchedulerMain.CurrentHint.Y:0},{SchedulerMain.CurrentHint.Z:0}) dist={dist:0} fly={fly}");
             return true;
         }, "Start pathfind to camp");
 
@@ -70,7 +73,12 @@ public static class Task_Travel
             // and then at most once every few seconds — never re-issue every frame.
             if (!Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning()
                 && EzThrottler.Throttle("SH.RepathTravel", 3000))
-                Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, false);
+            {
+                var fly = Plugin.C.UseFlight && Player.CanFly;
+                if (fly && !Player.Mounted)
+                    MountHelper.Mount();
+                Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, fly);
+            }
             return false;
         }, "Travel to camp", new TaskManagerConfiguration { TimeLimitMS = 180000 });
     }

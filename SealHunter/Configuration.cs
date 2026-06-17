@@ -24,6 +24,7 @@ namespace SealHunter
         public bool StopWhenNoMobs { get; set; } = false;
         public int RespawnWaitSeconds { get; set; } = 30;
         public bool UseMount { get; set; } = true;
+        public bool UseFlight { get; set; } = true;
 
         // Developer: live telemetry to a local log server (off by default).
         public bool DevLog { get; set; } = false;

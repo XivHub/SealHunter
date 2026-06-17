@@ -32,6 +32,7 @@ namespace SealHunter.Windows
             ImGui.Separator();
             ImGui.TextDisabled("Loop");
             BoolInput("Use a mount for long travel", () => cfg.UseMount, v => cfg.UseMount = v);
+            BoolInput("Fly when the zone allows it", () => cfg.UseFlight, v => cfg.UseFlight = v);
             BoolInput("Stop when camps are empty", () => cfg.StopWhenNoMobs, v => cfg.StopWhenNoMobs = v);
             IntInput("Respawn wait (s)", () => cfg.RespawnWaitSeconds, v => cfg.RespawnWaitSeconds = v);
 
