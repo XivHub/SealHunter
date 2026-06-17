@@ -5,11 +5,5 @@ bin/
 *.user
 *.suo
 
-# Local plan + agent scratch (per CLAUDE.md, not committed)
-PLAN.md
-
-# Local publish script (not committed)
+# Local publish script (deploy paths are environment-specific)
 publish.sh
-
-# Local project memory for Claude Code (not committed)
-CLAUDE.md
