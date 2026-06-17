@@ -90,7 +90,8 @@ public static class Task_Engage
             if ((idle || (close && moved)) && EzThrottler.Throttle("SH.Approach", 700))
             {
                 lastPathPos = target.Position;
-                Plugin.Navmesh.PathfindAndMoveTo(target.Position, false);
+                var dest = StandoffPoint(target.Position, Player.Position, Plugin.C.MaxEngageRange);
+                Plugin.Navmesh.PathfindAndMoveTo(dest, false);
                 Plugin.Telemetry?.Log($"approach repath dist={dist:0} idle={idle} close={close} moved={moved}");
             }
             return false;
@@ -141,5 +142,18 @@ public static class Task_Engage
             }
             return true;
         }, "Confirm kill / loop");
+    }
+
+    /// <summary>A point ~attack-range out from the mob toward the player, snapped to the navmesh —
+    /// so we walk up next to the mob instead of trying to stand on top of it.</summary>
+    private static Vector3 StandoffPoint(Vector3 mob, Vector3 player, float range)
+    {
+        var dir = player - mob;
+        dir.Y = 0;
+        var len = dir.Length();
+        if (len < 0.1f)
+            return mob; // basically on top already; the in-range check handles stopping
+        var standoff = mob + dir / len * (range * 0.8f);
+        return Plugin.Navmesh.NearestPoint(standoff, 5f, 5f) ?? standoff;
     }
 }

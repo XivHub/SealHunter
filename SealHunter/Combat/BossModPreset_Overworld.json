@@ -287,12 +287,6 @@
     ],
     "BossMod.Autorotation.xan.MeleeAI": [],
     "BossMod.Autorotation.xan.TankAI": [],
-    "BossMod.Autorotation.xan.RangedAI": [],
-    "BossMod.Autorotation.MiscAI.NormalMovement": [
-      {
-        "Track": "Destination",
-        "Option": "Pathfind"
-      }
-    ]
+    "BossMod.Autorotation.xan.RangedAI": []
   }
 }
