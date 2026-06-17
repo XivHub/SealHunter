@@ -72,8 +72,14 @@ public static class Task_KillOne
         {
             if (target == null) return true;
             TargetingHelper.SetTarget(target);
-            Plugin.Navmesh.PathfindAndMoveTo(target.Position, false);
-            return TargetingHelper.InRange(target, engageRange);
+            if (TargetingHelper.InRange(target, engageRange))
+            {
+                Plugin.Navmesh.Stop();
+                return true;
+            }
+            if (EzThrottler.Throttle("SH.Approach", 1000))
+                Plugin.Navmesh.PathfindAndMoveTo(target.Position, false);
+            return false;
         }, "Approach target", new TaskManagerConfiguration { TimeLimitMS = 60000 });
 
         tm.Enqueue(() =>

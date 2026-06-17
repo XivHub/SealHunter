@@ -2,6 +2,7 @@ using System;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.GameHelpers;
+using ECommons.Throttlers;
 using SealHunter.Game;
 using SealHunter.Helpers;
 
@@ -71,8 +72,15 @@ public static class Task_Engage
         {
             if (target == null) return true;
             TargetingHelper.SetTarget(target);
-            Plugin.Navmesh.PathfindAndMoveTo(target.Position, false);
-            return TargetingHelper.InRange(target, Plugin.C.MaxEngageRange);
+            if (TargetingHelper.InRange(target, Plugin.C.MaxEngageRange))
+            {
+                Plugin.Navmesh.Stop();
+                return true;
+            }
+            // Repath toward the (possibly moving) mob at most once/second, not every frame.
+            if (EzThrottler.Throttle("SH.Approach", 1000))
+                Plugin.Navmesh.PathfindAndMoveTo(target.Position, false);
+            return false;
         }, "Approach target", new TaskManagerConfiguration { TimeLimitMS = 60000, AbortOnTimeout = false });
 
         tm.Enqueue(() =>

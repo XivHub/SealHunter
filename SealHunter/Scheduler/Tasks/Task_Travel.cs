@@ -52,6 +52,7 @@ public static class Task_Travel
             if (Plugin.C.UseMount && Vector3.Distance(Player.Position, SchedulerMain.CurrentHint) > MountDistance)
                 MountHelper.Mount();
             Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, false);
+            EzThrottler.Throttle("SH.RepathTravel", 3000); // prime: don't re-issue immediately
             return true;
         }, "Start pathfind to camp");
 
@@ -63,8 +64,10 @@ public static class Task_Travel
                 SchedulerMain.State = BotState.Locating;
                 return true;
             }
-            // Re-issue pathfind if navmesh idled out short of the camp.
-            if (!Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning())
+            // Let the single pathfind run. Only nudge it if the navmesh genuinely stalled (idle),
+            // and then at most once every few seconds — never re-issue every frame.
+            if (!Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning()
+                && EzThrottler.Throttle("SH.RepathTravel", 3000))
                 Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, false);
             return false;
         }, "Travel to camp", new TaskManagerConfiguration { TimeLimitMS = 180000 });
