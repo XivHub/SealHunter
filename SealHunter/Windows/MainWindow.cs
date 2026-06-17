@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
@@ -31,8 +32,38 @@ namespace SealHunter.Windows
 
         public void Dispose() { }
 
+        // Cached view state, refreshed a few times a second instead of every frame (the underlying
+        // calls hit reflection + game memory + LINQ).
+        private long lastRefresh;
+        private (bool ok, string message) deps;
+        private uint gcKey;
+        private List<HuntEntry> open = new();
+        private List<HuntEntry> duty = new();
+
+        private void Refresh()
+        {
+            var now = Environment.TickCount64;
+            if (now - lastRefresh < 500 && lastRefresh != 0)
+                return;
+            lastRefresh = now;
+
+            deps = Dependencies.CheckAll();
+            gcKey = MonsterNoteReader.CurrentGcKey();
+            if (gcKey != 0)
+            {
+                open = HuntPlan.IncompleteOpenWorld();
+                duty = HuntPlan.IncompleteDuty();
+            }
+            else
+            {
+                open = new List<HuntEntry>();
+                duty = new List<HuntEntry>();
+            }
+        }
+
         public override void Draw()
         {
+            Refresh();
             DrawHeader();
             DrawControlBar();
             ImGui.Spacing();
@@ -58,7 +89,7 @@ namespace SealHunter.Windows
 
         private void DrawControlBar()
         {
-            var (depsOk, depsMsg) = Dependencies.CheckAll();
+            var (depsOk, depsMsg) = deps;
             var running = SchedulerMain.Running;
 
             if (!running)
@@ -119,15 +150,12 @@ namespace SealHunter.Windows
 
         private void DrawTargets()
         {
-            if (MonsterNoteReader.CurrentGcKey() == 0)
+            if (gcKey == 0)
             {
                 using (ImRaii.PushColor(ImGuiCol.Text, Red))
                     ImGui.TextUnformatted("No Grand Company joined.");
                 return;
             }
-
-            var open = HuntPlan.IncompleteOpenWorld();
-            var duty = HuntPlan.IncompleteDuty();
 
             ImGui.TextUnformatted($"Open-world remaining: {open.Count}");
             using (ImRaii.PushColor(ImGuiCol.PlotHistogram, Green))

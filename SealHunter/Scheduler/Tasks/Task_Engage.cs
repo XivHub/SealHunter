@@ -64,8 +64,17 @@ public static class Task_Engage
                 ActivityLog.Notify($"Found {entry.Monster.Name}; engaging.", chat: false);
                 return true;
             }
-            // Empty camp: skip for this pass, advance to the next target.
-            ActivityLog.Warn_($"No {entry.Monster.Name} found nearby; skipping for now.", chat: false);
+            // Empty camp: try the mob's next open-world camp before giving up on it.
+            var locs = SchedulerMain.CurrentLocations();
+            if (SchedulerMain.LocationIndex + 1 < locs.Count)
+            {
+                SchedulerMain.LocationIndex++;
+                SchedulerMain.EngageAttempts = 0;
+                ActivityLog.Warn_($"No {entry.Monster.Name} here; trying camp {SchedulerMain.LocationIndex + 1}/{locs.Count}.", chat: false);
+                SchedulerMain.State = BotState.Teleporting;
+                return true;
+            }
+            ActivityLog.Warn_($"No {entry.Monster.Name} at any camp; skipping for now.", chat: false);
             SchedulerMain.Skipped.Add(entry.Monster.Id);
             SchedulerMain.State = BotState.NextTarget;
             return true;

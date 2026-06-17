@@ -7,6 +7,7 @@ namespace SealHunter.Game;
 public static class Sheets
 {
     public static readonly ExcelSheet<Map> MapSheet;
+    public static readonly ExcelSheet<ClassJob> ClassJobSheet;
     public static readonly ExcelSheet<BNpcName> BNpcNameSheet;
     public static readonly ExcelSheet<Aetheryte> AetheryteSheet;
     public static readonly ExcelSheet<GrandCompany> GrandCompanySheet;
@@ -16,6 +17,7 @@ public static class Sheets
     static Sheets()
     {
         MapSheet = Plugin.DataManager.GetExcelSheet<Map>()!;
+        ClassJobSheet = Plugin.DataManager.GetExcelSheet<ClassJob>()!;
         BNpcNameSheet = Plugin.DataManager.GetExcelSheet<BNpcName>()!;
         AetheryteSheet = Plugin.DataManager.GetExcelSheet<Aetheryte>()!;
         GrandCompanySheet = Plugin.DataManager.GetExcelSheet<GrandCompany>()!;

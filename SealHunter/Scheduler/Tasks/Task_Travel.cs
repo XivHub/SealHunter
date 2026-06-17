@@ -15,13 +15,13 @@ public static class Task_Travel
     public static void Enqueue()
     {
         var entry = SchedulerMain.Current;
-        if (entry == null)
+        var loc = SchedulerMain.CurrentLocation();
+        if (entry == null || loc == null)
         {
             SchedulerMain.State = BotState.NextTarget;
             return;
         }
 
-        var loc = entry.Location;
         var tm = Plugin.TaskManager;
 
         tm.Enqueue(() =>

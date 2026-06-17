@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
@@ -7,6 +8,7 @@ using ECommons.GameHelpers;
 using SealHunter.Game;
 using SealHunter.Helpers;
 using SealHunter.IPC;
+using SealHunter.Models;
 using SealHunter.Scheduler.Tasks;
 
 namespace SealHunter.Scheduler;
@@ -38,6 +40,20 @@ public static class SchedulerMain
     /// <summary>Consecutive failed engage attempts on the current entry, before it is skipped.</summary>
     public static int EngageAttempts;
 
+    /// <summary>Which of the current monster's open-world camps we're currently trying.</summary>
+    public static int LocationIndex;
+
+    /// <summary>Open-world camps for the current target (a mob can have up to ~3).</summary>
+    public static List<HuntingMonsterLocation> CurrentLocations()
+        => Current?.Monster.Locations.Where(l => l.IsOpenWorld).ToList() ?? new List<HuntingMonsterLocation>();
+
+    /// <summary>The camp currently being worked, or null.</summary>
+    public static HuntingMonsterLocation? CurrentLocation()
+    {
+        var locs = CurrentLocations();
+        return locs.Count == 0 ? null : locs[Math.Min(LocationIndex, locs.Count - 1)];
+    }
+
     /// <summary>State to resume to after a transient pause (duty pop / player intervention) clears.</summary>
     private static BotState resumeState = BotState.NextTarget;
 
@@ -52,9 +68,17 @@ public static class SchedulerMain
             return false;
         }
 
+        // BossMod can only fight on a combat job; on a crafter/gatherer nothing would ever die.
+        if (Player.Available && Sheets.ClassJobSheet.GetRow((uint)Player.Job).DohDolJobIndex >= 0)
+        {
+            Plugin.ChatGui.PrintError("[SealHunter] Switch to a combat job before starting.");
+            return false;
+        }
+
         Current = null;
         Skipped.Clear();
         EngageAttempts = 0;
+        LocationIndex = 0;
         State = BotState.NextTarget;
         Helpers.ActivityLog.Good_("Started.");
         return true;

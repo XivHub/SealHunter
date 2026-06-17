@@ -18,6 +18,7 @@ public static class Task_SelectTarget
             {
                 SchedulerMain.Current = next;
                 SchedulerMain.EngageAttempts = 0;
+                SchedulerMain.LocationIndex = 0;
                 SchedulerMain.CurrentTargetStartTick = Environment.TickCount64;
                 SchedulerMain.State = BotState.Teleporting;
                 ActivityLog.Notify($"Next target: {next.Monster.Name} ({next.Killed}/{next.Required}).");
