@@ -13,6 +13,7 @@ public static class Sheets
     public static readonly ExcelSheet<GrandCompany> GrandCompanySheet;
     public static readonly SubrowExcelSheet<MapMarker> MapMarkerSheet;
     public static readonly ExcelSheet<TerritoryType> TerritoryTypeSheet;
+    public static readonly ExcelSheet<ContentFinderCondition> ContentFinderConditionSheet;
 
     static Sheets()
     {
@@ -23,5 +24,6 @@ public static class Sheets
         GrandCompanySheet = Plugin.DataManager.GetExcelSheet<GrandCompany>()!;
         MapMarkerSheet = Plugin.DataManager.GetSubrowExcelSheet<MapMarker>()!;
         TerritoryTypeSheet = Plugin.DataManager.GetExcelSheet<TerritoryType>()!;
+        ContentFinderConditionSheet = Plugin.DataManager.GetExcelSheet<ContentFinderCondition>()!;
     }
 }

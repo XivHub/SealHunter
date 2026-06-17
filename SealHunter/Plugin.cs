@@ -37,6 +37,7 @@ namespace SealHunter
         public static NavmeshIPC Navmesh { get; private set; } = null!;
         public static TeleportIPC Teleport { get; private set; } = null!;
         public static ICombatBackend CombatBackend { get; private set; } = null!;
+        public static AutoDutyIPC AutoDuty { get; private set; } = null!;
         public static TaskManager TaskManager { get; private set; } = null!;
         public static DevTelemetry Telemetry { get; private set; } = null!;
 
@@ -53,6 +54,7 @@ namespace SealHunter
             Navmesh = new NavmeshIPC();
             Teleport = new TeleportIPC();
             CombatBackend = new BossModIPC();
+            AutoDuty = new AutoDutyIPC();
             TaskManager = new TaskManager(new TaskManagerConfiguration { TimeLimitMS = 20000, ShowDebug = false });
 
             this.Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
@@ -8,6 +9,7 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using SealHunter.Game;
 using SealHunter.Helpers;
+using SealHunter.IPC;
 using SealHunter.Scheduler;
 
 namespace SealHunter.Windows
@@ -166,12 +168,29 @@ namespace SealHunter.Windows
             if (duty.Count > 0)
             {
                 ImGui.Spacing();
-                if (ImGui.CollapsingHeader($"Duty-bound (manual) — {duty.Count}###duty"))
+                if (ImGui.CollapsingHeader($"Duty-bound — {duty.Count}###duty"))
+                    DrawDutyGroups();
+            }
+        }
+
+        private void DrawDutyGroups()
+        {
+            // Group duty marks by their instance zone — one dungeon run clears all its marks.
+            foreach (var group in duty.GroupBy(e => e.Location.Zone))
+            {
+                var info = DutyResolver.Resolve(group.Key);
+                var marks = string.Join(", ", group.Select(e => $"{e.Monster.Name} {e.Killed}/{e.Required}"));
+
+                ImGui.TextUnformatted(info.Name);
+                if (AutoDutyIPC.Installed)
                 {
-                    using (ImRaii.PushColor(ImGuiCol.Text, Dim))
-                        foreach (var e in duty)
-                            ImGui.BulletText($"{e.Monster.Name}  {e.Killed}/{e.Required} — run the dungeon manually");
+                    ImGui.SameLine();
+                    if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Play, $"Run##{group.Key}"))
+                        Plugin.AutoDuty.Run(group.Key);
                 }
+
+                using (ImRaii.PushColor(ImGuiCol.Text, Dim))
+                    ImGui.BulletText(marks + (AutoDutyIPC.Installed ? "" : " — run the dungeon manually (AutoDuty not installed)"));
             }
         }
 
