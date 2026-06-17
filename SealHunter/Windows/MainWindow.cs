@@ -119,10 +119,6 @@ namespace SealHunter.Windows
 
         private void DrawStatusCard()
         {
-            using var style = ImRaii.PushStyle(ImGuiStyleVar.ChildRounding, 6f);
-            using var child = ImRaii.Child("##status", new Vector2(-1, ImGui.GetTextLineHeightWithSpacing() * 3.4f), true);
-            if (!child) return;
-
             ImGui.TextDisabled("State");
             ImGui.SameLine(110);
             using (ImRaii.PushColor(ImGuiCol.Text, StateColor(SchedulerMain.State)))

@@ -1,4 +1,5 @@
 using System.Numerics;
+using Dalamud.Game.ClientState.Conditions;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
@@ -24,6 +25,23 @@ public static class Task_Travel
 
         var tm = Plugin.TaskManager;
 
+        // Can't teleport while in combat — if a stray mob aggro'd us, kill the attackers first.
+        tm.Enqueue(() =>
+        {
+            if (!Plugin.Condition[ConditionFlag.InCombat])
+            {
+                Plugin.CombatBackend.Disable();
+                return true;
+            }
+            var foe = MobLocator.FindNearestAttacker(40f);
+            if (foe != null)
+            {
+                TargetingHelper.SetTarget(foe);
+                Plugin.CombatBackend.Enable();
+            }
+            return false;
+        }, "Clear aggro before travel", new TaskManagerConfiguration { TimeLimitMS = 60000, AbortOnTimeout = false });
+
         tm.Enqueue(() =>
         {
             if (Plugin.ClientState.TerritoryType == loc.Terri)
@@ -46,18 +64,26 @@ public static class Task_Travel
         tm.Enqueue(() => Plugin.ClientState.TerritoryType == loc.Terri && !Plugin.Teleport.IsBusy() && !Player.IsBusy && Plugin.Navmesh.IsReady(),
             "Wait for arrival + navmesh", new TaskManagerConfiguration { TimeLimitMS = 30000 });
 
+        // Mount FIRST (and wait for it). Flight capability (Player.CanFly) only reads true while
+        // mounted, and vnavmesh only takes off if we're already mounted when it gets a fly path.
         tm.Enqueue(() =>
         {
             SchedulerMain.CurrentHint = MapCoords.WorldHint(loc.Terri, loc.Map, loc.xCoord, loc.yCoord);
             SchedulerMain.State = BotState.Navigating;
             var dist = Vector3.Distance(Player.Position, SchedulerMain.CurrentHint);
-            var fly = Plugin.C.UseFlight && Player.CanFly;
-            // Mounting is needed to fly; also mount for long ground runs.
-            if ((Plugin.C.UseMount || fly) && dist > MountDistance && !Player.Mounted)
+            if (dist <= MountDistance || !(Plugin.C.UseMount || Plugin.C.UseFlight))
+                return true;
+            if (!Player.Mounted && !Player.Mounting && EzThrottler.Throttle("SH.Mount", 3000))
                 MountHelper.Mount();
+            return Player.Mounted;
+        }, "Mount", new TaskManagerConfiguration { TimeLimitMS = 8000, AbortOnTimeout = false });
+
+        tm.Enqueue(() =>
+        {
+            var fly = Plugin.C.UseFlight && Player.CanFly;
             Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, fly);
             EzThrottler.Throttle("SH.RepathTravel", 3000); // prime: don't re-issue immediately
-            Plugin.Telemetry?.Log($"travel: pathfind to camp hint=({SchedulerMain.CurrentHint.X:0},{SchedulerMain.CurrentHint.Y:0},{SchedulerMain.CurrentHint.Z:0}) dist={dist:0} fly={fly}");
+            Plugin.Telemetry?.Log($"travel: pathfind hint=({SchedulerMain.CurrentHint.X:0},{SchedulerMain.CurrentHint.Y:0},{SchedulerMain.CurrentHint.Z:0}) dist={Vector3.Distance(Player.Position, SchedulerMain.CurrentHint):0} fly={fly} canFly={Player.CanFly} mounted={Player.Mounted}");
             return true;
         }, "Start pathfind to camp");
 
@@ -73,12 +99,7 @@ public static class Task_Travel
             // and then at most once every few seconds — never re-issue every frame.
             if (!Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning()
                 && EzThrottler.Throttle("SH.RepathTravel", 3000))
-            {
-                var fly = Plugin.C.UseFlight && Player.CanFly;
-                if (fly && !Player.Mounted)
-                    MountHelper.Mount();
-                Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, fly);
-            }
+                Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, Plugin.C.UseFlight && Player.CanFly);
             return false;
         }, "Travel to camp", new TaskManagerConfiguration { TimeLimitMS = 180000 });
     }
