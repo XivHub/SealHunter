@@ -191,15 +191,23 @@ namespace SealHunter.Windows
                 var marks = string.Join(", ", group.Select(e => $"{e.Monster.Name} {e.Killed}/{e.Required}"));
 
                 ImGui.TextUnformatted(info.Name);
-                if (AutoDutyIPC.Installed)
+                if (!info.Unlocked)
+                {
+                    ImGui.SameLine();
+                    using (ImRaii.PushColor(ImGuiCol.Text, Red))
+                        ImGui.TextUnformatted("(locked)");
+                }
+                else if (AutoDutyIPC.Installed)
                 {
                     ImGui.SameLine();
                     if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Play, $"Run##{group.Key}"))
                         Plugin.AutoDuty.Run(group.Key);
                 }
 
+                var hint = !info.Unlocked ? " — unlock this dungeon first"
+                    : AutoDutyIPC.Installed ? "" : " — run the dungeon manually (AutoDuty not installed)";
                 using (ImRaii.PushColor(ImGuiCol.Text, Dim))
-                    ImGui.BulletText(marks + (AutoDutyIPC.Installed ? "" : " — run the dungeon manually (AutoDuty not installed)"));
+                    ImGui.BulletText(marks + hint);
             }
         }
 
