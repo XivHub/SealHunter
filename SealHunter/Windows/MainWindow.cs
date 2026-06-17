@@ -23,8 +23,11 @@ namespace SealHunter.Windows
         private static readonly Vector4 Dim = new(0.60f, 0.60f, 0.60f, 1f);
         private static readonly Vector4 Accent = new(0.85f, 0.74f, 0.42f, 1f);
 
+        private readonly Configuration cfg;
+
         public MainWindow(Configuration configuration) : base("SealHunter###SealHunterMain")
         {
+            cfg = configuration;
             SizeConstraints = new WindowSizeConstraints
             {
                 MinimumSize = new Vector2(380, 380),
@@ -58,6 +61,7 @@ namespace SealHunter.Windows
             Refresh();
             DrawHeader();
             DrawControlBar();
+            DrawModeSelector();
             ImGui.Spacing();
             DrawStatusCard();
             ImGui.Spacing();
@@ -107,6 +111,21 @@ namespace SealHunter.Windows
             ImGui.SameLine();
             using (ImRaii.PushColor(ImGuiCol.Text, depsOk ? Green : Red))
                 ImGui.TextUnformatted(depsOk ? "Ready" : depsMsg);
+        }
+
+        private void DrawModeSelector()
+        {
+            ImGui.SetNextItemWidth(220);
+            var mode = (int)cfg.Mode;
+            // Locked while running so the active loop can't have its target set shuffled mid-run.
+            using (ImRaii.Disabled(SchedulerMain.Running))
+            {
+                if (ImGui.Combo("Hunt", ref mode, ConfigWindow.ModeLabels, ConfigWindow.ModeLabels.Length))
+                {
+                    cfg.Mode = (HuntMode)mode;
+                    cfg.Save();
+                }
+            }
         }
 
         private void DrawStatusCard()

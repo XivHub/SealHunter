@@ -15,7 +15,7 @@ namespace SealHunter.Windows
 
         public void Dispose() { }
 
-        private static readonly string[] ModeLabels = { "Grand Company log (seals)", "Class/Job log (XP)", "Both (GC, then class)" };
+        internal static readonly string[] ModeLabels = { "Grand Company log (seals)", "Class/Job log (XP)", "Both (GC, then class)" };
 
         public override void Draw()
         {
