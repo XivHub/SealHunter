@@ -27,13 +27,14 @@ namespace SealHunter
         // Safety
         public bool StopOnDeath { get; set; } = false;
         public bool ReturnOnDeath { get; set; } = true;
-        public bool PauseOnPlayerIntervention { get; set; } = true;
 
         // Loop behaviour
         public bool StopWhenNoMobs { get; set; } = false;
         public int RespawnWaitSeconds { get; set; } = 30;
         public bool UseMount { get; set; } = true;
         public bool UseFlight { get; set; } = true;
+        public bool UseSprint { get; set; } = true;
+        public int StuckTimeoutSeconds { get; set; } = 8;
 
         // Developer: live telemetry to a local log server (off by default).
         public bool DevLog { get; set; } = false;

@@ -50,7 +50,6 @@ Then install **SealHunter** from the plugin installer (it appears alongside the 
 - `/sealhunter start` — begin the autonomous loop
 - `/sealhunter stop` — stop immediately (aborts movement and combat)
 - `/sealhunter dump` — print current GC log progress to chat (open-world + duty-bound)
-- `/sealhunter killone` — debug: run the first open-world target once
 
 The main window shows the live state, the current step ("what it's doing"), per-target progress
 bars, the duty-bound targets it can't reach, and a rolling activity log.
@@ -64,15 +63,21 @@ bars, the duty-bound targets it can't reach, and a rolling activity log.
 5. Confirm the kill against live progress (re-tries on stray-aggro or empty camps), loop until the
    entry is done, then move to the next. Stop when all open-world entries are complete.
 
-It pauses for cutscenes / duty pops / manual control and recovers from death. These behaviours are
-configurable in the settings window.
+It pauses for cutscenes / duty pops and recovers from death (optionally auto-clicking the
+Return prompt). These behaviours are configurable in the settings window.
+
+An anti-stuck watchdog re-paths, then jumps, then re-teleports if navmesh reports movement
+but the character hasn't progressed for a configurable number of seconds. Sprint is used on
+grounded walks; the main window shows a run card with kills done, kills remaining, and an
+ETA based on a rolling average kill time.
 
 ## Build
 
 Requires the .NET SDK and an extracted Dalamud dev bundle.
 
 ```bash
-DALAMUD_HOME=~/.cache/dalamud-dev dotnet build SealHunter/SealHunter.csproj -c Release -p:Platform=x64
+DALAMUD_HOME=~/.cache/dalamud-dev DOTNET_ROOT=~/.dotnet \
+  dotnet build SealHunter/SealHunter.csproj -c Release -p:Platform=x64
 ```
 
 Output: `SealHunter/bin/x64/Release/SealHunter.dll` and a packaged `…/SealHunter/latest.zip`.

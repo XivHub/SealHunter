@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SealHunter.Models;
@@ -18,9 +19,18 @@ public sealed record HuntEntry(
     public bool IsOpenWorld => Location.IsOpenWorld;
 }
 
-/// <summary>Joins the bundled dataset with live MonsterNote progress for the selected hunting log(s).</summary>
+/// <summary>Joins the bundled dataset with live MonsterNote progress for the selected hunting log(s).
+/// <para>The full <see cref="AllIncomplete"/> walk is the hot path: it derefs <c>PlayerState</c>,
+/// allocates per-rank <c>List&lt;MonsterStatus&gt;</c>, and is called from <c>Task_SelectTarget</c>,
+/// <c>Task_Engage</c>, and <c>MainWindow</c> (twice per 500ms). To keep per-frame allocations
+/// bounded we memoize the result for a short window and let <see cref="Invalidate"/> force a
+/// refresh right after a kill credit lands.</para></summary>
 public static class HuntPlan
 {
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromMilliseconds(500);
+    private static List<HuntEntry>? cachedAll;
+    private static long cachedAtTick;
+
     /// <summary>Which hunting-log key(s) to farm, per the configured mode and the current GC/job.</summary>
     private static IEnumerable<uint> KeysToFarm()
     {
@@ -41,8 +51,28 @@ public static class HuntPlan
         }
     }
 
-    /// <summary>All incomplete entries for the selected log(s), both open-world and duty-bound.</summary>
+    /// <summary>All incomplete entries for the selected log(s), both open-world and duty-bound.
+    /// Cached for <see cref="CacheTtl"/>; call <see cref="Invalidate"/> to force a fresh read.</summary>
     public static List<HuntEntry> AllIncomplete()
+    {
+        var now = Environment.TickCount64;
+        if (cachedAll != null && now - cachedAtTick < CacheTtl.TotalMilliseconds)
+            return cachedAll;
+
+        var entries = BuildAllIncomplete();
+        cachedAll = entries;
+        cachedAtTick = now;
+        return entries;
+    }
+
+    /// <summary>Drop the cached snapshot. Call after a kill credit advances so the next read
+    /// reflects the new live progress instead of the stale TTL window.</summary>
+    public static void Invalidate()
+    {
+        cachedAll = null;
+    }
+
+    private static List<HuntEntry> BuildAllIncomplete()
     {
         var entries = new List<HuntEntry>();
         foreach (var key in KeysToFarm())

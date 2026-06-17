@@ -10,9 +10,23 @@ public static class ActivityLog
     public readonly record struct Entry(string Time, string Message, Vector4 Color);
 
     private const int MaxEntries = 60;
-    private static readonly List<Entry> entries = new();
+    // Ring buffer: oldest entry sits at `head`; `count` tracks the live size. Avoids the O(n)
+    // shift that List.RemoveRange(0, k) does on every overflow.
+    private static readonly Entry[] buffer = new Entry[MaxEntries];
+    private static int head;
+    private static int count;
 
-    public static IReadOnlyList<Entry> Entries => entries;
+    public static IReadOnlyList<Entry> Entries
+    {
+        get
+        {
+            var snapshot = new List<Entry>(count);
+            var start = (buffer.Length + head - count) % buffer.Length;
+            for (var i = 0; i < count; i++)
+                snapshot.Add(buffer[(start + i) % buffer.Length]);
+            return snapshot;
+        }
+    }
 
     private static readonly Vector4 Default = new(0.85f, 0.85f, 0.85f, 1f);
     private static readonly Vector4 Good = new(0.45f, 0.85f, 0.45f, 1f);
@@ -40,13 +54,17 @@ public static class ActivityLog
             Plugin.ChatGui.PrintError($"[SealHunter] {message}");
     }
 
-    public static void Clear() => entries.Clear();
+    public static void Clear()
+    {
+        head = 0;
+        count = 0;
+    }
 
     private static void Add(string message, Vector4 color)
     {
-        entries.Add(new Entry(DateTime.Now.ToString("HH:mm:ss"), message, color));
-        if (entries.Count > MaxEntries)
-            entries.RemoveRange(0, entries.Count - MaxEntries);
+        buffer[head] = new Entry(DateTime.Now.ToString("HH:mm:ss"), message, color);
+        head = (head + 1) % buffer.Length;
+        if (count < buffer.Length) count++;
         Plugin.Telemetry?.Log(message);
     }
 }

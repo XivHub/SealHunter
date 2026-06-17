@@ -2,7 +2,6 @@ using System;
 using ECommons.EzIpcManager;
 using ECommons.Reflection;
 
-#nullable disable
 namespace SealHunter.IPC;
 
 /// <summary>
@@ -19,8 +18,8 @@ public class TeleportIPC
     public static bool Installed => DalamudReflector.TryGetDalamudPlugin(Name, out _, false, true);
 
     /// <summary>Lifestream.Teleport(aetheryteId, subIndex) — returns whether it started.</summary>
-    [EzIPC] public Func<uint, byte, bool> Teleport;
+    [EzIPC] public Func<uint, byte, bool> Teleport = null!;
 
     /// <summary>Whether Lifestream is currently busy (teleporting / moving).</summary>
-    [EzIPC] public Func<bool> IsBusy;
+    [EzIPC] public Func<bool> IsBusy = null!;
 }

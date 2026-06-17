@@ -28,8 +28,33 @@ public static class SchedulerMain
     /// <summary>TickCount64 when the current target was selected, for the elapsed display.</summary>
     public static long CurrentTargetStartTick;
 
+    /// <summary>Total kills credited this run (across all entries). Updated on kill-confirm.</summary>
+    public static int TotalKills;
+
+    /// <summary>Rolling average seconds per kill (exponential moving average), for the ETA panel.
+    /// Seeded lazily on the first kill so a fresh run shows no ETA.</summary>
+    public static double AverageKillSeconds;
+    private static bool avgKillSeeded;
+
     public static int CurrentTargetElapsedSeconds
         => Current == null ? 0 : (int)Math.Max(0, (Environment.TickCount64 - CurrentTargetStartTick) / 1000);
+
+    /// <summary>Seed the kill-time EMA with the first observed kill. Returns true if it seeded
+    /// (i.e. this was the first kill). Call once per kill; subsequent kills use <see cref="UpdateKillAverage"/>.</summary>
+    public static bool SeedKillAverage(double seconds)
+    {
+        if (avgKillSeeded) return false;
+        AverageKillSeconds = seconds;
+        avgKillSeeded = true;
+        return true;
+    }
+
+    /// <summary>Update the kill-time EMA (α = 0.3). Only call after the first kill has seeded it.</summary>
+    public static void UpdateKillAverage(double seconds)
+    {
+        const double alpha = 0.3;
+        AverageKillSeconds = alpha * seconds + (1 - alpha) * AverageKillSeconds;
+    }
 
     /// <summary>Current TaskManager step label ("what it's doing"), if any.</summary>
     public static string CurrentAction => Plugin.TaskManager.CurrentTask?.Name ?? "—";
@@ -43,9 +68,26 @@ public static class SchedulerMain
     /// <summary>Which of the current monster's open-world camps we're currently trying.</summary>
     public static int LocationIndex;
 
-    /// <summary>Open-world camps for the current target (a mob can have up to ~3).</summary>
+    // Cached open-world camps for `Current`. Recomputed only when Current's monster identity
+    // changes, so the per-frame tick doesn't re-allocate a Where().ToList() on every call.
+    private static List<HuntingMonsterLocation>? cachedLocations;
+    private static uint cachedLocationsMonsterId;
+
     public static List<HuntingMonsterLocation> CurrentLocations()
-        => Current?.Monster.Locations.Where(l => l.IsOpenWorld).ToList() ?? new List<HuntingMonsterLocation>();
+    {
+        var cur = Current;
+        if (cur == null)
+        {
+            cachedLocations = null;
+            cachedLocationsMonsterId = 0;
+            return new List<HuntingMonsterLocation>();
+        }
+        if (cachedLocations != null && cachedLocationsMonsterId == cur.Monster.Id)
+            return cachedLocations;
+        cachedLocations = cur.Monster.Locations.Where(l => l.IsOpenWorld).ToList();
+        cachedLocationsMonsterId = cur.Monster.Id;
+        return cachedLocations;
+    }
 
     /// <summary>The camp currently being worked, or null.</summary>
     public static HuntingMonsterLocation? CurrentLocation()
@@ -60,6 +102,14 @@ public static class SchedulerMain
     /// <summary>Until this tick, keep cancelling our own residual navmesh movement after a stop.
     /// Bounded so we NEVER touch vnavmesh while idle long-term (that would hijack other plugins).</summary>
     private static long stopGuardUntil;
+
+    // --- Anti-stuck watchdog ---
+    // While travelling (Teleporting/Navigating), track player movement. If navmesh reports a move
+    // is running but the player hasn't moved > 1y for StuckTimeoutSeconds, escalate:
+    //   1) re-path to CurrentHint; 2) jump; 3) re-teleport (sets State=Teleporting to redo travel).
+    private static Vector3 lastWatchPos;
+    private static long lastWatchMovedTick;
+    private static int stuckEscalation; // 0=ok, 1=repathed, 2=jumped, 3=re-teleport
 
     public static bool Running => State != BotState.Idle;
 
@@ -79,13 +129,28 @@ public static class SchedulerMain
             return false;
         }
 
+        ResetLoopState();
+        State = BotState.NextTarget;
+        Helpers.ActivityLog.Good_("Started.");
+        return true;
+    }
+
+    /// <summary>Clear all per-run scratch state. Called on Start (fresh run) and on logout
+    /// (so a character switch can't resume against a stale target).</summary>
+    public static void ResetLoopState()
+    {
         Current = null;
         Skipped.Clear();
         EngageAttempts = 0;
         LocationIndex = 0;
-        State = BotState.NextTarget;
-        Helpers.ActivityLog.Good_("Started.");
-        return true;
+        cachedLocations = null;
+        cachedLocationsMonsterId = 0;
+        stuckEscalation = 0;
+        lastWatchPos = default;
+        lastWatchMovedTick = 0;
+        TotalKills = 0;
+        AverageKillSeconds = 0;
+        avgKillSeeded = false;
     }
 
     public static bool DisablePlugin()
@@ -139,20 +204,16 @@ public static class SchedulerMain
             }
         }
 
-        if (Plugin.C.PauseOnPlayerIntervention
-            && State is BotState.Teleporting or BotState.Navigating
-            && PlayerGuard.PlayerIntervened(null))
-        {
-            EnterPause(BotState.PausedForPlayer);
-            return;
-        }
-
-        // Resume from a transient pause once the world is interactive again.
-        if (State is BotState.PausedForDuty or BotState.PausedForPlayer)
+        // Resume from a transient pause (duty pop) once the world is interactive again.
+        if (State == BotState.PausedForDuty)
         {
             State = resumeState;
             return;
         }
+
+        // Anti-stuck watchdog: runs during travel while navmesh is actively moving us.
+        if (State is BotState.Teleporting or BotState.Navigating)
+            WatchdogTick();
 
         // --- Per-state dispatch (only when nothing is queued) ---
 
@@ -186,6 +247,63 @@ public static class SchedulerMain
         }
     }
 
+    /// <summary>Anti-stuck watchdog: if navmesh is actively moving us but the player hasn't
+    /// progressed for <see cref="Configuration.StuckTimeoutSeconds"/>, escalate through
+    /// re-path → jump → re-teleport. Resets escalation as soon as movement resumes.</summary>
+    private static void WatchdogTick()
+    {
+        if (!NavmeshIPC.Installed || !Plugin.Navmesh.IsRunning())
+        {
+            // No active move: reset the baseline so a fresh move starts a new window.
+            lastWatchPos = Player.Available ? Player.Position : default;
+            lastWatchMovedTick = Environment.TickCount64;
+            return;
+        }
+
+        var pos = Player.Available ? Player.Position : default;
+        if (Vector3.DistanceSquared(pos, lastWatchPos) > 1f) // moved > 1y
+        {
+            lastWatchPos = pos;
+            lastWatchMovedTick = Environment.TickCount64;
+            if (stuckEscalation != 0) stuckEscalation = 0; // moving again
+            return;
+        }
+
+        var stuckMs = Plugin.C.StuckTimeoutSeconds * 1000;
+        if (Environment.TickCount64 - lastWatchMovedTick < stuckMs)
+            return; // within the window
+
+        // Stuck. Escalate.
+        var hint = CurrentHint;
+        switch (stuckEscalation)
+        {
+            case 0:
+                ActivityLog.Warn_($"Stuck for {Plugin.C.StuckTimeoutSeconds}s; re-pathing.", chat: false);
+                Plugin.Navmesh.Stop();
+                var fly = Plugin.C.UseFlight && Player.Mounted
+                          && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
+                Plugin.Navmesh.PathfindAndMoveTo(hint, fly);
+                stuckEscalation = 1;
+                lastWatchMovedTick = Environment.TickCount64; // reset window for next escalation
+                break;
+            case 1:
+                ActivityLog.Warn_($"Still stuck; jumping.", chat: false);
+                MountHelper.Jump();
+                stuckEscalation = 2;
+                lastWatchMovedTick = Environment.TickCount64;
+                break;
+            default:
+                ActivityLog.Warn_("Still stuck; re-teleporting to the camp aetheryte.");
+                Plugin.TaskManager.Abort();
+                if (NavmeshIPC.Installed) Plugin.Navmesh.Stop();
+                Plugin.CombatBackend.Disable();
+                State = BotState.Teleporting; // dispatcher re-runs Task_Travel next tick
+                stuckEscalation = 3;
+                lastWatchMovedTick = Environment.TickCount64;
+                break;
+        }
+    }
+
     private static string BuildSnapshot()
     {
         var t = Current;
@@ -202,7 +320,7 @@ public static class SchedulerMain
 
     private static void EnterPause(BotState pause)
     {
-        if (State is BotState.Idle or BotState.PausedForDuty or BotState.PausedForPlayer)
+        if (State is BotState.Idle or BotState.PausedForDuty)
         {
             if (State != BotState.Idle)
                 State = pause;

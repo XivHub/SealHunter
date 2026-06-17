@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using SealHunter.Models;
 
@@ -21,20 +20,5 @@ public static class HuntTargetData
             ?? throw new InvalidOperationException($"Embedded dataset {Resource} not found");
         using var reader = new StreamReader(stream);
         return JsonConvert.DeserializeObject<HuntingData>(reader.ReadToEnd()) ?? new HuntingData();
-    }
-
-    /// <summary>First open-world monster in the dataset (used by the Phase 2 vertical-slice debug command).</summary>
-    public static (uint gcKey, int rank, HuntingMonster monster)? FirstOpenWorld()
-    {
-        foreach (var (gcKey, ranks) in Data.JobRanks)
-        {
-            for (var r = 0; r < ranks.Count; r++)
-            {
-                var monster = ranks[r].Tasks.SelectMany(t => t.Monsters).FirstOrDefault(m => m.IsOpenWorld);
-                if (monster != null)
-                    return (gcKey, r, monster);
-            }
-        }
-        return null;
     }
 }

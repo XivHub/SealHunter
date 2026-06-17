@@ -96,6 +96,10 @@ public static class Task_Travel
                 SchedulerMain.State = BotState.Locating;
                 return true;
             }
+            // Sprint on grounded walks (unmounted). Mounts/flying don't benefit and Sprint can't
+            // be used while mounted anyway.
+            if (!Player.Mounted && Plugin.C.UseSprint)
+                SprintHelper.TrySprint();
             // Let the single pathfind run. Only nudge it if the navmesh genuinely stalled (idle),
             // and then at most once every few seconds — never re-issue every frame.
             if (!Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning()

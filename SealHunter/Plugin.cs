@@ -11,7 +11,6 @@ using SealHunter.Game;
 using SealHunter.Helpers;
 using SealHunter.IPC;
 using SealHunter.Scheduler;
-using SealHunter.Scheduler.Tasks;
 using SealHunter.Windows;
 
 namespace SealHunter
@@ -84,7 +83,13 @@ namespace SealHunter
         private void OnFrameworkUpdate(IFramework framework) => SchedulerMain.Tick();
 
         // Stop on logout so a character switch never resumes the loop on a different character.
-        private void OnLogout(int type, int code) => SchedulerMain.DisablePlugin();
+        // DisablePlugin stops the loop; ResetLoopState clears the stale target/skip set so the UI
+        // and any next Start don't see the previous character's progress.
+        private void OnLogout(int type, int code)
+        {
+            SchedulerMain.DisablePlugin();
+            SchedulerMain.ResetLoopState();
+        }
 
         public void Dispose()
         {
@@ -117,9 +122,6 @@ namespace SealHunter
                 case "stop":
                     SchedulerMain.DisablePlugin();
                     break;
-                case "killone":
-                    RunKillOne();
-                    break;
                 case "dump":
                     RunDump();
                     break;
@@ -127,26 +129,6 @@ namespace SealHunter
                     mainWindow.IsOpen = true;
                     break;
             }
-        }
-
-        private static void RunKillOne()
-        {
-            var (ok, message) = Dependencies.CheckAll();
-            if (!ok)
-            {
-                ChatGui.PrintError($"[SealHunter] {message}");
-                return;
-            }
-
-            var first = HuntTargetData.FirstOpenWorld();
-            if (first is not { } t)
-            {
-                ChatGui.PrintError("[SealHunter] No open-world GC target found in dataset.");
-                return;
-            }
-
-            ChatGui.Print($"[SealHunter] killone: {t.monster.Name} (x{t.monster.Count}).");
-            Task_KillOne.Enqueue(t.monster);
         }
 
         private static void RunDump()

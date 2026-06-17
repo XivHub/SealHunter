@@ -38,14 +38,15 @@ namespace SealHunter.Windows
             ImGui.TextDisabled("Safety");
             BoolInput("Stop on death", () => cfg.StopOnDeath, v => cfg.StopOnDeath = v);
             BoolInput("Return to home point on death", () => cfg.ReturnOnDeath, v => cfg.ReturnOnDeath = v);
-            BoolInput("Pause when I take manual control", () => cfg.PauseOnPlayerIntervention, v => cfg.PauseOnPlayerIntervention = v);
 
             ImGui.Separator();
             ImGui.TextDisabled("Loop");
             BoolInput("Use a mount for long travel", () => cfg.UseMount, v => cfg.UseMount = v);
             BoolInput("Fly when the zone allows it", () => cfg.UseFlight, v => cfg.UseFlight = v);
+            BoolInput("Sprint on grounded walks", () => cfg.UseSprint, v => cfg.UseSprint = v);
             BoolInput("Stop when camps are empty", () => cfg.StopWhenNoMobs, v => cfg.StopWhenNoMobs = v);
             IntInput("Respawn wait (s)", () => cfg.RespawnWaitSeconds, v => cfg.RespawnWaitSeconds = v);
+            IntInput("Stuck timeout (s) before re-pathing", () => cfg.StuckTimeoutSeconds, v => cfg.StuckTimeoutSeconds = v);
 
             ImGui.Separator();
             if (ImGui.CollapsingHeader("Developer"))

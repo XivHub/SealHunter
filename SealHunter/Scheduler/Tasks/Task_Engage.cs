@@ -37,6 +37,7 @@ public static class Task_Engage
         var locateStart = Environment.TickCount64;
         const long locateWindowMs = 15000;
         var lastPathPos = Vector3.Zero;
+        long engageStartTick = 0; // set when the Engage step fires, for kill-time stats
 
         // Locate within a bounded window; if nothing appears, treat the camp as empty for now.
         tm.Enqueue(() =>
@@ -129,6 +130,7 @@ public static class Task_Engage
             Plugin.Navmesh.Stop();
             SchedulerMain.State = BotState.Engaging;
             Plugin.CombatBackend.Enable();
+            engageStartTick = Environment.TickCount64;
             var hp = target is IBattleChara c && c.MaxHp > 0 ? (int)(c.CurrentHp * 100 / c.MaxHp) : -1;
             Plugin.Telemetry?.Log($"engage: target={target.Name} hp={hp}% dist={Vector3.Distance(Player.Position, target.Position):0} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
             return true;
@@ -150,6 +152,9 @@ public static class Task_Engage
         tm.Enqueue(() =>
         {
             if (target == null) return true;
+            // Invalidate the HuntPlan cache so the Refresh below reads live progress instead of
+            // the pre-kill snapshot.
+            HuntPlan.Invalidate();
             var r = HuntPlan.Refresh(entry);
             return r == null || r.Killed > killedBefore;
         }, "Wait for kill credit", new TaskManagerConfiguration { TimeLimitMS = 8000, AbortOnTimeout = false });
@@ -165,6 +170,16 @@ public static class Task_Engage
             // Re-evaluate against live progress (handles stray-aggro kills that didn't advance the count).
             var refreshed = HuntPlan.Refresh(entry);
             Plugin.Telemetry?.Log($"kill-confirm: prevKilled={entry.Killed} now={(refreshed?.Killed.ToString() ?? "complete")} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
+
+            // Update the rolling kill-time stat (only when we actually advanced the count).
+            if (refreshed != null && refreshed.Killed > entry.Killed && engageStartTick > 0)
+            {
+                var killSec = (Environment.TickCount64 - engageStartTick) / 1000.0;
+                SchedulerMain.TotalKills++;
+                if (!SchedulerMain.SeedKillAverage(killSec))
+                    SchedulerMain.UpdateKillAverage(killSec);
+            }
+
             if (refreshed == null)
             {
                 // Entry complete: move on.

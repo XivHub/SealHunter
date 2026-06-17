@@ -10,7 +10,6 @@ public enum BotState
     Engaging,
     Recovering,
     PausedForDuty,
-    PausedForPlayer,
     Done,
     Error,
 }

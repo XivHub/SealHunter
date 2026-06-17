@@ -153,6 +153,37 @@ namespace SealHunter.Windows
             {
                 ImGui.TextUnformatted("—");
             }
+
+            DrawRunCard();
+        }
+
+        private void DrawRunCard()
+        {
+            var kills = SchedulerMain.TotalKills;
+            var remaining = open.Sum(e => e.Remaining);
+            var avg = SchedulerMain.AverageKillSeconds;
+
+            ImGui.Separator();
+            ImGui.TextDisabled("Run");
+            ImGui.SameLine(110);
+            ImGui.TextUnformatted($"{kills} kills this run");
+            ImGui.TextDisabled("Remaining");
+            ImGui.SameLine(110);
+            ImGui.TextUnformatted($"{remaining} kill{(remaining == 1 ? "" : "s")}");
+            ImGui.TextDisabled("ETA");
+            ImGui.SameLine(110);
+            if (avg > 0 && remaining > 0)
+            {
+                var eta = remaining * avg;
+                ImGui.TextUnformatted(eta >= 3600 ? $"{eta / 3600:0.0}h" : $"{eta / 60:0}m{(int)eta % 60}s");
+                ImGui.SameLine();
+                using (ImRaii.PushColor(ImGuiCol.Text, Dim))
+                    ImGui.TextDisabled($"({avg:0.0}s/kill avg)");
+            }
+            else
+            {
+                ImGui.TextUnformatted("—");
+            }
         }
 
         private void DrawTargets()
@@ -246,7 +277,6 @@ namespace SealHunter.Windows
             BotState.Error => Red,
             BotState.Recovering => Amber,
             BotState.PausedForDuty => Amber,
-            BotState.PausedForPlayer => Amber,
             _ => Blue,
         };
     }
