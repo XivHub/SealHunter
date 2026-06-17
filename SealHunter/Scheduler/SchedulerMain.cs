@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using SealHunter.Game;
@@ -18,6 +19,15 @@ public static class SchedulerMain
 
     /// <summary>World hint (X/Z + floor Y) for the current target's camp.</summary>
     public static Vector3 CurrentHint;
+
+    /// <summary>TickCount64 when the current target was selected, for the elapsed display.</summary>
+    public static long CurrentTargetStartTick;
+
+    public static int CurrentTargetElapsedSeconds
+        => Current == null ? 0 : (int)Math.Max(0, (Environment.TickCount64 - CurrentTargetStartTick) / 1000);
+
+    /// <summary>Current TaskManager step label ("what it's doing"), if any.</summary>
+    public static string CurrentAction => Plugin.TaskManager.CurrentTask?.Name ?? "—";
 
     /// <summary>Monsters temporarily skipped this pass (camp empty / unkillable); cleared after a respawn wait.</summary>
     public static readonly HashSet<uint> Skipped = new();
@@ -43,7 +53,7 @@ public static class SchedulerMain
         Skipped.Clear();
         EngageAttempts = 0;
         State = BotState.NextTarget;
-        Plugin.Logger.Info("SealHunter started.");
+        Helpers.ActivityLog.Good_("Started.");
         return true;
     }
 
@@ -54,6 +64,7 @@ public static class SchedulerMain
         if (NavmeshIPC.Installed && Plugin.Navmesh.IsRunning())
             Plugin.Navmesh.Stop();
         State = BotState.Idle;
+        Helpers.ActivityLog.Warn_("Stopped.", chat: false);
         Plugin.Logger.Info("SealHunter stopped.");
         return true;
     }
@@ -75,7 +86,7 @@ public static class SchedulerMain
         {
             if (Plugin.C.StopOnDeath)
             {
-                Plugin.ChatGui.Print("[SealHunter] Stopped on death.");
+                Helpers.ActivityLog.Warn_("Stopped on death.");
                 DisablePlugin();
                 return;
             }
@@ -96,7 +107,7 @@ public static class SchedulerMain
 
         if (DurabilityGuard.NeedsRepair(Plugin.C.MinDurabilityPercent))
         {
-            Plugin.ChatGui.PrintError($"[SealHunter] Gear below {Plugin.C.MinDurabilityPercent:0}% durability — stopping. Repair and restart.");
+            Helpers.ActivityLog.Warn_($"Gear below {Plugin.C.MinDurabilityPercent:0}% durability — stopping. Repair and restart.");
             DisablePlugin();
             return;
         }
@@ -130,7 +141,7 @@ public static class SchedulerMain
                 Task_Recover.Enqueue();
                 break;
             case BotState.Done:
-                Plugin.ChatGui.Print("[SealHunter] GC hunting log complete (open-world targets).");
+                Helpers.ActivityLog.Good_("GC hunting log complete (open-world targets).");
                 DisablePlugin();
                 break;
             case BotState.Error:

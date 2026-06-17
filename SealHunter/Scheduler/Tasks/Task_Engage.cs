@@ -23,7 +23,7 @@ public static class Task_Engage
         SchedulerMain.EngageAttempts++;
         if (SchedulerMain.EngageAttempts > Plugin.C.MaxConsecutiveScanFailures)
         {
-            Plugin.ChatGui.Print($"[SealHunter] Skipping {entry.Monster.Name} (no progress after {SchedulerMain.EngageAttempts - 1} attempts).");
+            ActivityLog.Warn_($"Skipping {entry.Monster.Name} (no progress after {SchedulerMain.EngageAttempts - 1} attempts).", chat: false);
             SchedulerMain.Skipped.Add(entry.Monster.Id);
             SchedulerMain.State = BotState.NextTarget;
             return;
@@ -56,9 +56,12 @@ public static class Task_Engage
         tm.Enqueue(() =>
         {
             if (target != null)
+            {
+                ActivityLog.Notify($"Found {entry.Monster.Name}; engaging.", chat: false);
                 return true;
+            }
             // Empty camp: skip for this pass, advance to the next target.
-            Plugin.ChatGui.Print($"[SealHunter] No {entry.Monster.Name} found nearby; skipping for now.");
+            ActivityLog.Warn_($"No {entry.Monster.Name} found nearby; skipping for now.", chat: false);
             SchedulerMain.Skipped.Add(entry.Monster.Id);
             SchedulerMain.State = BotState.NextTarget;
             return true;
@@ -95,13 +98,17 @@ public static class Task_Engage
             if (refreshed == null)
             {
                 // Entry complete: move on.
+                ActivityLog.Good_($"Completed {entry.Monster.Name}.", chat: false);
                 SchedulerMain.EngageAttempts = 0;
                 SchedulerMain.State = BotState.NextTarget;
             }
             else
             {
                 if (refreshed.Killed > entry.Killed)
+                {
+                    ActivityLog.Good_($"Killed {entry.Monster.Name} ({refreshed.Killed}/{refreshed.Required}).", chat: false);
                     SchedulerMain.EngageAttempts = 0; // real progress; reset the skip counter
+                }
                 SchedulerMain.Current = refreshed;
                 SchedulerMain.State = BotState.Locating; // loop within entry, no re-travel
             }

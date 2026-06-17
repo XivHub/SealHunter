@@ -1,4 +1,6 @@
+using System;
 using SealHunter.Game;
+using SealHunter.Helpers;
 
 namespace SealHunter.Scheduler.Tasks;
 
@@ -16,8 +18,9 @@ public static class Task_SelectTarget
             {
                 SchedulerMain.Current = next;
                 SchedulerMain.EngageAttempts = 0;
+                SchedulerMain.CurrentTargetStartTick = Environment.TickCount64;
                 SchedulerMain.State = BotState.Teleporting;
-                Plugin.ChatGui.Print($"[SealHunter] Next: {next.Monster.Name} {next.Killed}/{next.Required} (terri {next.Location.Terri}).");
+                ActivityLog.Notify($"Next target: {next.Monster.Name} ({next.Killed}/{next.Required}).");
                 return true;
             }
 
@@ -30,13 +33,13 @@ public static class Task_SelectTarget
 
             if (Plugin.C.StopWhenNoMobs)
             {
-                Plugin.ChatGui.Print("[SealHunter] No mobs available; stopping (StopWhenNoMobs).");
+                ActivityLog.Warn_("No mobs available; stopping (StopWhenNoMobs).");
                 SchedulerMain.State = BotState.Done;
                 return true;
             }
 
             // Wait for respawns, then clear the skip set and re-select (State stays NextTarget).
-            Plugin.ChatGui.Print($"[SealHunter] Camps empty; waiting {Plugin.C.RespawnWaitSeconds}s for respawns.");
+            ActivityLog.Warn_($"Camps empty; waiting {Plugin.C.RespawnWaitSeconds}s for respawns.", chat: false);
             tm.EnqueueDelay(Plugin.C.RespawnWaitSeconds * 1000);
             tm.Enqueue(() => { SchedulerMain.Skipped.Clear(); return true; }, "Clear skip after respawn wait");
             return true;
