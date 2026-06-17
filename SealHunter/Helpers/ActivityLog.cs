@@ -47,5 +47,6 @@ public static class ActivityLog
         entries.Add(new Entry(DateTime.Now.ToString("HH:mm:ss"), message, color));
         if (entries.Count > MaxEntries)
             entries.RemoveRange(0, entries.Count - MaxEntries);
+        Plugin.Telemetry?.Log(message);
     }
 }

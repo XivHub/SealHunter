@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using ECommons.GameHelpers;
 using SealHunter.Game;
 using SealHunter.Helpers;
 using SealHunter.IPC;
@@ -71,6 +72,8 @@ public static class SchedulerMain
 
     public static void Tick()
     {
+        Plugin.Telemetry?.Snapshot(BuildSnapshot);
+
         if (State == BotState.Idle)
             return;
 
@@ -149,6 +152,17 @@ public static class SchedulerMain
                 DisablePlugin();
                 break;
         }
+    }
+
+    private static string BuildSnapshot()
+    {
+        var t = Current;
+        var pos = Player.Available ? Player.Position : default;
+        var prog = t == null ? "" : $"{t.Killed}/{t.Required}";
+        return $"state={State} action=\"{CurrentAction}\" target={t?.Monster.Name ?? "-"} prog={prog} " +
+               $"elapsed={CurrentTargetElapsedSeconds}s terri={Plugin.ClientState.TerritoryType} " +
+               $"pos=({pos.X:0},{pos.Y:0},{pos.Z:0}) navRunning={Plugin.Navmesh.IsRunning()} " +
+               $"navBusy={Plugin.Navmesh.PathfindInProgress()} combat={Plugin.CombatBackend.IsActive()} queued={Plugin.TaskManager.NumQueuedTasks}";
     }
 
     private static void EnterPause(BotState pause)

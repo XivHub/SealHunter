@@ -35,6 +35,20 @@ namespace SealHunter.Windows
             BoolInput("Use a mount for long travel", () => cfg.UseMount, v => cfg.UseMount = v);
             BoolInput("Stop when camps are empty", () => cfg.StopWhenNoMobs, v => cfg.StopWhenNoMobs = v);
             IntInput("Respawn wait (s)", () => cfg.RespawnWaitSeconds, v => cfg.RespawnWaitSeconds = v);
+
+            ImGui.Separator();
+            if (ImGui.CollapsingHeader("Developer"))
+            {
+                ImGui.TextDisabled("Streams live activity + state snapshots to a local log server.");
+                BoolInput("Enable dev telemetry", () => cfg.DevLog, v => cfg.DevLog = v);
+                var url = cfg.DevLogUrl;
+                if (ImGui.InputText("Log server URL", ref url, 256))
+                {
+                    cfg.DevLogUrl = url;
+                    cfg.Save();
+                }
+                ImGui.TextDisabled("e.g. http://192.168.88.248:9999/log");
+            }
         }
 
         private void FloatInput(string label, Func<float> get, Action<float> set)

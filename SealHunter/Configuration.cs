@@ -26,6 +26,10 @@ namespace SealHunter
         public int RespawnWaitSeconds { get; set; } = 30;
         public bool UseMount { get; set; } = true;
 
+        // Developer: live telemetry to a local log server (off by default).
+        public bool DevLog { get; set; } = false;
+        public string DevLogUrl { get; set; } = "";
+
         [NonSerialized]
         private IDalamudPluginInterface? pluginInterface;
 

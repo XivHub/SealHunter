@@ -5,6 +5,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ECommons;
 using ECommons.Automation.NeoTaskManager;
+using ZhyraPluginKit;
 using SealHunter.Combat;
 using SealHunter.Game;
 using SealHunter.Helpers;
@@ -37,6 +38,7 @@ namespace SealHunter
         public static TeleportIPC Teleport { get; private set; } = null!;
         public static ICombatBackend CombatBackend { get; private set; } = null!;
         public static TaskManager TaskManager { get; private set; } = null!;
+        public static DevTelemetry Telemetry { get; private set; } = null!;
 
         public Configuration Configuration { get; init; }
         public static Configuration C { get; private set; } = null!;
@@ -56,6 +58,9 @@ namespace SealHunter
             this.Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(PluginInterface);
             C = this.Configuration;
+
+            Telemetry = new DevTelemetry("SealHunter", () => C.DevLog, () => C.DevLogUrl,
+                err => Logger.Debug($"DevLog post failed: {err}"));
 
             mainWindow = new MainWindow(this.Configuration);
             configWindow = new ConfigWindow(this.Configuration);
@@ -79,6 +84,7 @@ namespace SealHunter
         {
             Framework.Update -= OnFrameworkUpdate;
             SchedulerMain.DisablePlugin();
+            Telemetry.Dispose();
 
             PluginInterface.UiBuilder.Draw -= DrawUI;
             PluginInterface.UiBuilder.OpenMainUi -= ToggleMainUi;
