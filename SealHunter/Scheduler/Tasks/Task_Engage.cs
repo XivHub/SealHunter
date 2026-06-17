@@ -1,4 +1,6 @@
 using System;
+using System.Numerics;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.GameHelpers;
@@ -34,6 +36,7 @@ public static class Task_Engage
         IBattleNpc? target = null;
         var locateStart = Environment.TickCount64;
         const long locateWindowMs = 15000;
+        var lastPathPos = Vector3.Zero;
 
         tm.Enqueue(() =>
         {
@@ -72,14 +75,24 @@ public static class Task_Engage
         {
             if (target == null) return true;
             TargetingHelper.SetTarget(target);
-            if (TargetingHelper.InRange(target, Plugin.C.MaxEngageRange))
+            var dist = Vector3.Distance(Player.Position, target.Position);
+            if (dist <= Plugin.C.MaxEngageRange)
             {
                 Plugin.Navmesh.Stop();
                 return true;
             }
-            // Repath toward the (possibly moving) mob at most once/second, not every frame.
-            if (EzThrottler.Throttle("SH.Approach", 1000))
+            // While far, ride the existing path (only repath if the navmesh stalled) — chasing a
+            // distant mob's per-second position just fights its wander AI. Only once we're close does
+            // re-tracking its movement actually matter.
+            var idle = !Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning();
+            var close = dist <= 15f;
+            var moved = Vector3.Distance(target.Position, lastPathPos) > 3f;
+            if ((idle || (close && moved)) && EzThrottler.Throttle("SH.Approach", 700))
+            {
+                lastPathPos = target.Position;
                 Plugin.Navmesh.PathfindAndMoveTo(target.Position, false);
+                Plugin.Telemetry?.Log($"approach repath dist={dist:0} idle={idle} close={close} moved={moved}");
+            }
             return false;
         }, "Approach target", new TaskManagerConfiguration { TimeLimitMS = 60000, AbortOnTimeout = false });
 
@@ -89,6 +102,8 @@ public static class Task_Engage
             Plugin.Navmesh.Stop();
             SchedulerMain.State = BotState.Engaging;
             Plugin.CombatBackend.Enable();
+            var hp = target is IBattleChara c && c.MaxHp > 0 ? (int)(c.CurrentHp * 100 / c.MaxHp) : -1;
+            Plugin.Telemetry?.Log($"engage: target={target.Name} hp={hp}% dist={Vector3.Distance(Player.Position, target.Position):0} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
             return true;
         }, "Engage");
 
@@ -99,10 +114,14 @@ public static class Task_Engage
         {
             Plugin.CombatBackend.Disable();
             if (target == null)
+            {
+                Plugin.Telemetry?.Log("kill-confirm: target lost/null before kill");
                 return true;
+            }
 
             // Re-evaluate against live progress (handles stray-aggro kills that didn't advance the count).
             var refreshed = HuntPlan.Refresh(entry);
+            Plugin.Telemetry?.Log($"kill-confirm: prevKilled={entry.Killed} now={(refreshed?.Killed.ToString() ?? "complete")} tgtDead={TargetingHelper.TargetIsDead()} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
             if (refreshed == null)
             {
                 // Entry complete: move on.

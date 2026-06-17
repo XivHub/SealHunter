@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.GameHelpers;
 using SealHunter.Game;
 using SealHunter.Helpers;
@@ -62,7 +64,9 @@ public static class SchedulerMain
     {
         Plugin.TaskManager.Abort();
         Plugin.CombatBackend.Disable();
-        if (NavmeshIPC.Installed && Plugin.Navmesh.IsRunning())
+        // Stop unconditionally: during an async pathfind IsRunning() is false but a move is still
+        // pending, so a guarded Stop() would miss it and movement would resume.
+        if (NavmeshIPC.Installed)
             Plugin.Navmesh.Stop();
         State = BotState.Idle;
         Helpers.ActivityLog.Warn_("Stopped.", chat: false);
@@ -75,7 +79,12 @@ public static class SchedulerMain
         Plugin.Telemetry?.Snapshot(BuildSnapshot);
 
         if (State == BotState.Idle)
+        {
+            // Safety net: if a pathfind completed after Stop() and restarted movement, halt it.
+            if (NavmeshIPC.Installed && Plugin.Navmesh.IsRunning())
+                Plugin.Navmesh.Stop();
             return;
+        }
 
         // --- Top-of-tick guards (every frame) ---
 
@@ -159,10 +168,13 @@ public static class SchedulerMain
         var t = Current;
         var pos = Player.Available ? Player.Position : default;
         var prog = t == null ? "" : $"{t.Killed}/{t.Required}";
+        var tgt = Plugin.TargetManager.Target;
+        var tgtHp = tgt is IBattleChara bc && bc.MaxHp > 0 ? (int)(bc.CurrentHp * 100 / bc.MaxHp) : -1;
         return $"state={State} action=\"{CurrentAction}\" target={t?.Monster.Name ?? "-"} prog={prog} " +
                $"elapsed={CurrentTargetElapsedSeconds}s terri={Plugin.ClientState.TerritoryType} " +
-               $"pos=({pos.X:0},{pos.Y:0},{pos.Z:0}) navRunning={Plugin.Navmesh.IsRunning()} " +
-               $"navBusy={Plugin.Navmesh.PathfindInProgress()} combat={Plugin.CombatBackend.IsActive()} queued={Plugin.TaskManager.NumQueuedTasks}";
+               $"pos=({pos.X:0},{pos.Y:0},{pos.Z:0}) navRun={Plugin.Navmesh.IsRunning()} " +
+               $"navBusy={Plugin.Navmesh.PathfindInProgress()} inCombat={Plugin.Condition[ConditionFlag.InCombat]} " +
+               $"botCombat={Plugin.CombatBackend.IsActive()} hasTgt={tgt != null} tgtHp={tgtHp}% queued={Plugin.TaskManager.NumQueuedTasks}";
     }
 
     private static void EnterPause(BotState pause)
@@ -176,7 +188,7 @@ public static class SchedulerMain
 
         resumeState = State == BotState.Recovering ? BotState.Recovering : BotState.NextTarget;
         Plugin.TaskManager.Abort();
-        if (NavmeshIPC.Installed && Plugin.Navmesh.IsRunning())
+        if (NavmeshIPC.Installed)
             Plugin.Navmesh.Stop();
         Plugin.CombatBackend.Disable();
         State = pause;

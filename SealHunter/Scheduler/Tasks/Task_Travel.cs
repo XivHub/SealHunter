@@ -36,6 +36,7 @@ public static class Task_Travel
             if (TeleportIPC.Installed && EzThrottler.Throttle("SH.Teleport", 2000))
             {
                 var aetheryte = AetheryteResolver.NearestAetheryte(loc.Map, loc.Terri, loc.MapCoords);
+                Plugin.Telemetry?.Log($"teleport: aetheryte={aetheryte} -> terri {loc.Terri}");
                 if (aetheryte != 0)
                     Plugin.Teleport.Teleport(aetheryte, 0);
             }
@@ -53,6 +54,7 @@ public static class Task_Travel
                 MountHelper.Mount();
             Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, false);
             EzThrottler.Throttle("SH.RepathTravel", 3000); // prime: don't re-issue immediately
+            Plugin.Telemetry?.Log($"travel: pathfind to camp hint=({SchedulerMain.CurrentHint.X:0},{SchedulerMain.CurrentHint.Y:0},{SchedulerMain.CurrentHint.Z:0}) dist={Vector3.Distance(Player.Position, SchedulerMain.CurrentHint):0}");
             return true;
         }, "Start pathfind to camp");
 
