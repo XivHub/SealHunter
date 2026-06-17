@@ -34,14 +34,14 @@ Optional: **RotationSolver Reborn** is supported as an alternative combat backen
 
 ## Install
 
-Add the plugin repository to Dalamud:
+SealHunter ships in the combined Zhyra plugin repository. Add it to Dalamud:
 
 ```
 /xlsettings → Experimental → Custom Plugin Repositories
-https://edgl.dev/share/sealhunter/pluginmaster.json
+https://edgl.dev/share/zhyra/pluginmaster.json
 ```
 
-Then install **SealHunter** from the plugin installer.
+Then install **SealHunter** from the plugin installer (it appears alongside the other Zhyra plugins).
 
 ## Usage
 
@@ -78,10 +78,16 @@ Output: `SealHunter/bin/x64/Release/SealHunter.dll` and a packaged `…/SealHunt
 
 ## Publish / deploy
 
-`./publish.sh` builds Release and copies `latest.zip`, `SealHunter.dll`, and a regenerated
-single-entry `pluginmaster.json` to the share directory (default `~/share/sealhunter`, served at
-`https://edgl.dev/share/sealhunter`). **Bump `<Version>` in the csproj before publishing** so
-Dalamud detects the update. `publish.sh` is gitignored (its paths are environment-specific).
+Deploy with the shared, plugin-agnostic helper (in `~/.local/bin`), run from the repo root:
+
+```bash
+publish-plugin          # or ./publish.sh — a thin wrapper around the same script
+```
+
+It builds Release, stages `latest.zip` + `SealHunter.dll` under `~/share/zhyra/sealhunter/`, and
+**merges** SealHunter's entry into the combined Zhyra `pluginmaster.json` (replacing only its own
+entry, keeping the other plugins). The plugin has no separate repo. **Bump `<Version>` in the csproj
+before publishing** so Dalamud detects the update. `publish.sh` is gitignored.
 
 ## Documentation
 

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -6,18 +6,21 @@ using SealHunter.Models;
 
 namespace SealHunter.Game;
 
-/// <summary>Loads the bundled GC hunting-log dataset from the plugin directory.</summary>
+/// <summary>Loads the bundled GC hunting-log dataset (embedded resource).</summary>
 public static class HuntTargetData
 {
+    private const string Resource = "SealHunter.Data.gc_hunt_targets.json";
+
     private static HuntingData? cached;
 
     public static HuntingData Data => cached ??= Load();
 
     private static HuntingData Load()
     {
-        var path = Path.Combine(Plugin.PluginInterface.AssemblyLocation.Directory!.FullName, "Data", "gc_hunt_targets.json");
-        var json = File.ReadAllText(path);
-        return JsonConvert.DeserializeObject<HuntingData>(json) ?? new HuntingData();
+        using var stream = typeof(HuntTargetData).Assembly.GetManifestResourceStream(Resource)
+            ?? throw new InvalidOperationException($"Embedded dataset {Resource} not found");
+        using var reader = new StreamReader(stream);
+        return JsonConvert.DeserializeObject<HuntingData>(reader.ReadToEnd()) ?? new HuntingData();
     }
 
     /// <summary>First open-world monster in the dataset (used by the Phase 2 vertical-slice debug command).</summary>
