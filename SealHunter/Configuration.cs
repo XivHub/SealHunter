@@ -4,10 +4,19 @@ using System;
 
 namespace SealHunter
 {
+    public enum HuntMode
+    {
+        GrandCompany,   // the current GC's hunting log (seals)
+        ClassJob,       // the current class/job's hunting log (XP)
+        Both,           // GC first, then the current class log
+    }
+
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
         public int Version { get; set; } = 1;
+
+        public HuntMode Mode { get; set; } = HuntMode.GrandCompany;
 
         // Combat / search
         public float MaxEngageRange { get; set; } = 3.5f;

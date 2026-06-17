@@ -15,8 +15,19 @@ namespace SealHunter.Windows
 
         public void Dispose() { }
 
+        private static readonly string[] ModeLabels = { "Grand Company log (seals)", "Class/Job log (XP)", "Both (GC, then class)" };
+
         public override void Draw()
         {
+            ImGui.TextDisabled("Hunt");
+            var mode = (int)cfg.Mode;
+            if (ImGui.Combo("What to hunt", ref mode, ModeLabels, ModeLabels.Length))
+            {
+                cfg.Mode = (HuntMode)mode;
+                cfg.Save();
+            }
+
+            ImGui.Separator();
             ImGui.TextDisabled("Combat & search");
             FloatInput("Max engage range (y)", () => cfg.MaxEngageRange, v => cfg.MaxEngageRange = v);
             FloatInput("Mob search radius (y)", () => cfg.MobSearchRadius, v => cfg.MobSearchRadius = v);

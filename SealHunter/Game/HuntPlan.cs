@@ -4,9 +4,10 @@ using SealHunter.Models;
 
 namespace SealHunter.Game;
 
-/// <summary>One actionable hunt target: a monster with remaining kills and its location.</summary>
+/// <summary>One actionable hunt target: a monster with remaining kills and its location.
+/// <c>LogKey</c> is the hunting-log key (a class id, or 10001/10002/10003 for a GC).</summary>
 public sealed record HuntEntry(
-    uint GcKey,
+    uint LogKey,
     int Rank,
     HuntingMonster Monster,
     HuntingMonsterLocation Location,
@@ -17,31 +18,53 @@ public sealed record HuntEntry(
     public bool IsOpenWorld => Location.IsOpenWorld;
 }
 
-/// <summary>Joins the bundled GC dataset with live MonsterNote progress.</summary>
+/// <summary>Joins the bundled dataset with live MonsterNote progress for the selected hunting log(s).</summary>
 public static class HuntPlan
 {
-    /// <summary>All incomplete entries for the current GC, both open-world and duty-bound.</summary>
+    /// <summary>Which hunting-log key(s) to farm, per the configured mode and the current GC/job.</summary>
+    private static IEnumerable<uint> KeysToFarm()
+    {
+        var gc = MonsterNoteReader.CurrentGcKey();
+        var cj = MonsterNoteReader.CurrentClassKey();
+        switch (Plugin.C.Mode)
+        {
+            case HuntMode.GrandCompany:
+                if (gc != 0) yield return gc;
+                break;
+            case HuntMode.ClassJob:
+                if (cj != 0) yield return cj;
+                break;
+            case HuntMode.Both:
+                if (gc != 0) yield return gc;
+                if (cj != 0) yield return cj;
+                break;
+        }
+    }
+
+    /// <summary>All incomplete entries for the selected log(s), both open-world and duty-bound.</summary>
     public static List<HuntEntry> AllIncomplete()
     {
         var entries = new List<HuntEntry>();
-        var gcKey = MonsterNoteReader.CurrentGcKey();
-        if (gcKey == 0 || !HuntTargetData.Data.JobRanks.TryGetValue(gcKey, out var ranks))
-            return entries;
-
-        // Only the currently-unlocked rank is farmable: lower ranks are already complete, and higher
-        // ranks are gated behind Grand Company rank (killing their marks wouldn't count yet).
-        var currentRank = MonsterNoteReader.CurrentRank(gcKey);
-        if (currentRank < 0 || currentRank >= ranks.Count)
-            return entries;
-
-        foreach (var status in MonsterNoteReader.GetRankProgress(gcKey, currentRank, ranks[currentRank]))
+        foreach (var key in KeysToFarm())
         {
-            if (status.Done || status.Monster.Locations.Count == 0)
+            if (!HuntTargetData.Data.JobRanks.TryGetValue(key, out var ranks))
                 continue;
 
-            entries.Add(new HuntEntry(
-                gcKey, currentRank, status.Monster, status.Monster.PrimaryLocation,
-                status.Killed, status.Monster.Count));
+            // Only the currently-unlocked rank is farmable: lower ranks are complete, higher ranks
+            // are gated (GC rank / class level) and killing their marks wouldn't count yet.
+            var currentRank = MonsterNoteReader.CurrentRank(key);
+            if (currentRank < 0 || currentRank >= ranks.Count)
+                continue;
+
+            foreach (var status in MonsterNoteReader.GetRankProgress(key, currentRank, ranks[currentRank]))
+            {
+                if (status.Done || status.Monster.Locations.Count == 0)
+                    continue;
+
+                entries.Add(new HuntEntry(
+                    key, currentRank, status.Monster, status.Monster.PrimaryLocation,
+                    status.Killed, status.Monster.Count));
+            }
         }
 
         return entries;
@@ -64,5 +87,5 @@ public static class HuntPlan
 
     /// <summary>Current live state of a specific entry, or null if it is now complete.</summary>
     public static HuntEntry? Refresh(HuntEntry entry)
-        => AllIncomplete().FirstOrDefault(e => e.GcKey == entry.GcKey && e.Monster.Id == entry.Monster.Id);
+        => AllIncomplete().FirstOrDefault(e => e.LogKey == entry.LogKey && e.Monster.Id == entry.Monster.Id);
 }

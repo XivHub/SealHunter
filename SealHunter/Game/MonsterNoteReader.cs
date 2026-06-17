@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using SealHunter.Models;
@@ -20,9 +21,29 @@ public static unsafe class MonsterNoteReader
         return gc == 0 ? 0u : (uint)(gc + 10000);
     }
 
-    /// <summary>Maps a GC key to its slot in MonsterNoteManager.RankData (Hunty's StaticData.JobInMemory).</summary>
-    private static int MemoryIndex(uint gcKey) => gcKey switch
+    /// <summary>Current class hunting-log key: the player's job mapped to its base class (ClassJobParent).
+    /// 0 if the job has no hunting log (e.g. jobs without an ARR base class).</summary>
+    public static uint CurrentClassKey()
     {
+        if (!Player.Available)
+            return 0;
+        var parent = Sheets.ClassJobSheet.GetRow((uint)Player.Job).ClassJobParent.RowId;
+        return MemoryIndex(parent) >= 0 ? parent : 0;
+    }
+
+    /// <summary>Maps a hunting-log key (class id or GC key) to its slot in MonsterNoteManager.RankData
+    /// (Hunty's StaticData.JobInMemory). Returns -1 for keys with no log.</summary>
+    private static int MemoryIndex(uint key) => key switch
+    {
+        1 => 0,   // Gladiator
+        2 => 1,   // Pugilist
+        3 => 2,   // Marauder
+        4 => 3,   // Lancer
+        5 => 4,   // Archer
+        6 => 5,   // Conjurer
+        7 => 6,   // Thaumaturge
+        26 => 7,  // Arcanist
+        29 => 11, // Rogue
         10001 => 8,
         10002 => 9,
         10003 => 10,

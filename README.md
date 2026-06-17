@@ -1,7 +1,8 @@
 # SealHunter
 
 A [Dalamud](https://github.com/goatcorp/Dalamud) plugin for Final Fantasy XIV that automates
-the three **Grand Company hunting logs** to farm company seals.
+your **hunting logs** — the **Grand Company** logs (company seals) or your current **class/job** log
+(XP), selectable in settings.
 
 After you press **Start**, it works through every incomplete *open-world* GC hunting-log entry on
 its own: reads which marks are still needed, teleports to the nearest aetheryte, walks to each

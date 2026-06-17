@@ -9,7 +9,7 @@ namespace SealHunter.Game;
 /// <summary>Loads the bundled GC hunting-log dataset (embedded resource).</summary>
 public static class HuntTargetData
 {
-    private const string Resource = "SealHunter.Data.gc_hunt_targets.json";
+    private const string Resource = "SealHunter.Data.hunt_targets.json";
 
     private static HuntingData? cached;
 

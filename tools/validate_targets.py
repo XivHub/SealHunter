@@ -9,7 +9,7 @@ import json
 import sys
 from pathlib import Path
 
-DATA = Path(__file__).resolve().parent.parent / "SealHunter" / "Data" / "gc_hunt_targets.json"
+DATA = Path(__file__).resolve().parent.parent / "SealHunter" / "Data" / "hunt_targets.json"
 GC_KEYS = {"10001": "Maelstrom", "10002": "Twin Adder", "10003": "Immortal Flames"}
 
 

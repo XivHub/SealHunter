@@ -38,7 +38,6 @@ namespace SealHunter.Windows
         // calls hit reflection + game memory + LINQ).
         private long lastRefresh;
         private (bool ok, string message) deps;
-        private uint gcKey;
         private List<HuntEntry> open = new();
         private List<HuntEntry> duty = new();
 
@@ -50,17 +49,8 @@ namespace SealHunter.Windows
             lastRefresh = now;
 
             deps = Dependencies.CheckAll();
-            gcKey = MonsterNoteReader.CurrentGcKey();
-            if (gcKey != 0)
-            {
-                open = HuntPlan.IncompleteOpenWorld();
-                duty = HuntPlan.IncompleteDuty();
-            }
-            else
-            {
-                open = new List<HuntEntry>();
-                duty = new List<HuntEntry>();
-            }
+            open = HuntPlan.IncompleteOpenWorld();
+            duty = HuntPlan.IncompleteDuty();
         }
 
         public override void Draw()
@@ -148,10 +138,10 @@ namespace SealHunter.Windows
 
         private void DrawTargets()
         {
-            if (gcKey == 0)
+            if (open.Count == 0 && duty.Count == 0)
             {
-                using (ImRaii.PushColor(ImGuiCol.Text, Red))
-                    ImGui.TextUnformatted("No Grand Company joined.");
+                using (ImRaii.PushColor(ImGuiCol.Text, Dim))
+                    ImGui.TextWrapped("Nothing to hunt for the selected mode. Check the mode in settings; for GC you must have joined a Grand Company, for Class/Job you must be on a class that has a hunting log.");
                 return;
             }
 

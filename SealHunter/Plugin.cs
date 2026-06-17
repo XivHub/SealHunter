@@ -151,16 +151,11 @@ namespace SealHunter
 
         private static void RunDump()
         {
-            var gc = Game.MonsterNoteReader.CurrentGcKey();
-            if (gc == 0)
-            {
-                ChatGui.Print("[SealHunter] No Grand Company joined.");
-                return;
-            }
-
             var open = Game.HuntPlan.IncompleteOpenWorld();
             var duty = Game.HuntPlan.IncompleteDuty();
-            ChatGui.Print($"[SealHunter] GC {gc}: {open.Count} open-world target(s) remaining, {duty.Count} duty-bound (skipped).");
+            ChatGui.Print($"[SealHunter] Mode {C.Mode}: {open.Count} open-world target(s) remaining, {duty.Count} duty-bound (skipped).");
+            if (open.Count == 0 && duty.Count == 0)
+                ChatGui.Print("  Nothing to hunt — check mode / GC membership / class hunting log.");
             foreach (var e in open)
                 ChatGui.Print($"  [rank {e.Rank + 1}] {e.Monster.Name}: {e.Killed}/{e.Required} (terri {e.Location.Terri})");
             foreach (var e in duty)
