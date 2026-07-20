@@ -35,18 +35,45 @@ public static class Task_Engage
         var tm = Plugin.TaskManager;
         IBattleNpc? target = null;
         var locateStart = Environment.TickCount64;
-        const long locateWindowMs = 15000;
+        const long locateWindowMs = 30000;
+        var nextPatrolTick = Environment.TickCount64 + 3000; // idle 3s before first roam
+        var patrolIndex = 0;
         var lastPathPos = Vector3.Zero;
         long engageStartTick = 0; // set when the Engage step fires, for kill-time stats
 
-        // Locate within a bounded window; if nothing appears, treat the camp as empty for now.
+        // Locate within a bounded window, roaming the camp on a ring around the hint when nothing
+        // spawns at the arrival point — covers more of the camp than a stationary 60y scan.
         tm.Enqueue(() =>
         {
-            target = MobLocator.FindNearest(entry.Monster.Id, SchedulerMain.CurrentHint, Plugin.C.MobSearchRadius);
+            // Scan around the player (not the static hint) so roaming covers more spawns.
+            target = MobLocator.FindNearest(entry.Monster.Id, Player.Position, Plugin.C.MobSearchRadius);
             if (target != null)
+            {
+                if (Plugin.Navmesh.IsRunning()) Plugin.Navmesh.Stop();
                 return true;
-            return Environment.TickCount64 - locateStart > locateWindowMs;
-        }, "Locate target", new TaskManagerConfiguration { TimeLimitMS = 20000, AbortOnTimeout = false });
+            }
+            if (Environment.TickCount64 - locateStart > locateWindowMs)
+            {
+                if (Plugin.Navmesh.IsRunning()) Plugin.Navmesh.Stop();
+                return true; // give up, let "Handle empty camp" decide
+            }
+            // Roam: when navmesh is idle, move to the next point on a ring around the camp hint.
+            if (Environment.TickCount64 >= nextPatrolTick
+                && !Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning())
+            {
+                var angle = patrolIndex * (Math.PI / 4); // 8 points around the ring
+                patrolIndex++;
+                var r = Plugin.C.MobSearchRadius * 0.5f;
+                var off = new Vector3((float)(Math.Cos(angle) * r), 0, (float)(Math.Sin(angle) * r));
+                var dest = SchedulerMain.CurrentHint + off;
+                var snapped = Plugin.Navmesh.NearestPoint(dest, 5f, 5f) ?? dest;
+                var fly = Plugin.C.UseFlight && Player.Mounted && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
+                Plugin.Navmesh.PathfindAndMoveTo(snapped, fly);
+                nextPatrolTick = Environment.TickCount64 + 6000; // arrive + scan, then next point
+                Plugin.Telemetry?.Log($"patrol: idx={patrolIndex} dest=({snapped.X:0},{snapped.Y:0},{snapped.Z:0}) fly={fly}");
+            }
+            return false;
+        }, "Locate target (roam)", new TaskManagerConfiguration { TimeLimitMS = 35000, AbortOnTimeout = false });
 
         tm.Enqueue(() =>
         {
@@ -61,7 +88,7 @@ public static class Task_Engage
             {
                 SchedulerMain.LocationIndex++;
                 SchedulerMain.EngageAttempts = 0;
-                ActivityLog.Warn_($"No {entry.Monster.Name} here; trying camp {SchedulerMain.LocationIndex + 1}/{locs.Count}.", chat: false);
+                ActivityLog.Warn_($"No {entry.Monster.Name} found after roaming the camp; trying camp {SchedulerMain.LocationIndex + 1}/{locs.Count}.", chat: false);
                 SchedulerMain.State = BotState.Teleporting;
                 return true;
             }
@@ -136,8 +163,14 @@ public static class Task_Engage
             return true;
         }, "Engage");
 
-        tm.Enqueue(() => target == null || TargetingHelper.TargetIsDead(),
-            "Wait for kill", new TaskManagerConfiguration { TimeLimitMS = Plugin.C.CombatTimeoutSeconds * 1000, AbortOnTimeout = false });
+        tm.Enqueue(() =>
+        {
+            if (target == null) return true;
+            // Wait for the specific engaged mob to die/despawn — NOT the soft-target. BossMod
+            // autorotation may retarget to a stray aggro mob; a stray dying must not complete this
+            // step, or we'd wait forever for a hunt-log credit that never comes.
+            return TargetingHelper.ObjectIsDeadOrGone(target, entry.Monster.Id);
+        }, "Wait for kill", new TaskManagerConfiguration { TimeLimitMS = Plugin.C.CombatTimeoutSeconds * 1000, AbortOnTimeout = false });
 
         // Stop attacking the instant the mob dies, so autorotation can't tag another while we wait.
         tm.Enqueue(() =>

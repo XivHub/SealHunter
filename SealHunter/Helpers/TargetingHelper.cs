@@ -21,4 +21,26 @@ public static class TargetingHelper
             return bc.IsDead || bc.CurrentHp == 0;
         return t == null;
     }
+
+    /// <summary>Whether a specific battle object is dead or has despawned from the ObjectTable.
+    /// Re-resolves by <see cref="IGameObject.GameObjectId"/> each call so a stale captured reference
+    /// (a despawned mob whose slot may have been reused) can't report another object's state. Use
+    /// this instead of <see cref="TargetIsDead"/> when you need the death of a specific engaged mob,
+    /// not whatever the soft-target happens to be — BossMod autorotation may retarget to a stray
+    /// aggro mob, and a stray dying must not be mistaken for the hunt mob dying.
+    /// <paramref name="expectedNameId"/> guards against ObjectTable slot-id reuse: a despawned
+    /// mob's id can be recycled for a freshly-spawned different mob, so we also require the name
+    /// id to match before treating the slot as "still our target".</summary>
+    public static bool ObjectIsDeadOrGone(IGameObject obj, uint expectedNameId)
+    {
+        var id = obj.GameObjectId;
+        foreach (var o in Plugin.ObjectTable)
+        {
+            if (o.GameObjectId != id) continue;
+            if (o is not IBattleNpc npc) return true; // slot now holds a non-battle object
+            if (npc.NameId != expectedNameId) return true; // slot reused for a different mob
+            return npc.IsDead || npc.CurrentHp == 0;
+        }
+        return true; // not in the table → despawned
+    }
 }
