@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using ECommons.EzIpcManager;
-using SealHunter.Helpers;
+using ZhyraPluginKit;
 
 namespace SealHunter.IPC;
 

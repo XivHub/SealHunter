@@ -7,6 +7,7 @@ using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using SealHunter.Game;
 using SealHunter.Helpers;
+using ZhyraPluginKit.Game;
 
 namespace SealHunter.Scheduler.Tasks;
 

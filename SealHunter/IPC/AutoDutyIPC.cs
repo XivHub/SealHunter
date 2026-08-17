@@ -1,7 +1,7 @@
 using System;
 using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Ipc.Exceptions;
-using SealHunter.Helpers;
+using ZhyraPluginKit;
 
 namespace SealHunter.IPC;
 

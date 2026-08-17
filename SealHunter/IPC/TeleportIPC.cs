@@ -1,6 +1,6 @@
 using System;
 using ECommons.EzIpcManager;
-using SealHunter.Helpers;
+using ZhyraPluginKit;
 
 namespace SealHunter.IPC;
 

@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using ZhyraPluginKit.Game;
 
 namespace SealHunter.Helpers;
 

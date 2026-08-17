@@ -5,6 +5,7 @@ using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using SealHunter.Helpers;
 using SealHunter.IPC;
+using ZhyraPluginKit.Game;
 
 namespace SealHunter.Scheduler.Tasks;
 

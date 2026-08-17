@@ -65,6 +65,7 @@ namespace SealHunter
         public Plugin()
         {
             ECommonsMain.Init(PluginInterface, this, Module.DalamudReflector);
+            KitServices.Init(DataManager, Logger, ChatGui, $"[{Name}]");
 
             // Config first: the combat backend is selected from it.
             this.Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
