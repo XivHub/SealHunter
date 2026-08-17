@@ -30,8 +30,8 @@ All three are hard dependencies; the **Start** button is disabled until they're 
 | **Teleporter** (`Teleport` IPC) | teleport to the nearest aetheryte |
 | **BossMod Reborn** (`BossMod`) | combat (autorotation via an "Overworld" preset) |
 
-Optional: **RotationSolver Reborn** is supported as an alternative combat backend in code
-(`RotationSolverIPC`), but BossMod Reborn is the default.
+The autorotation plugin is selectable in the settings window: **BossMod Reborn** (default) or
+**RotationSolver Reborn**, which is driven in Manual mode. Only the selected one is required.
 
 ## Install
 
@@ -59,7 +59,9 @@ bars, the duty-bound targets it can't reach, and a rolling activity log.
 1. Read incomplete entries for your current GC from `MonsterNoteManager`.
 2. Pick the next open-world target (grouped by zone to minimise teleports).
 3. Teleport to the nearest aetheryte, mount, and navigate to the camp.
-4. Find the live mob by `NameId`, target it, dismount, and enable BossMod autorotation.
+4. Find the live mob by `NameId`, target it, approach to **the current job's attack range** (melee
+   closes; ranged and healers stop ~20y out, and walk around terrain that blocks line of sight),
+   dismount, and enable autorotation.
 5. Confirm the kill against live progress (re-tries on stray-aggro or empty camps), loop until the
    entry is done, then move to the next. Stop when all open-world entries are complete.
 

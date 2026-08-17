@@ -35,8 +35,24 @@ namespace SealHunter
 
         public static NavmeshIPC Navmesh { get; private set; } = null!;
         public static TeleportIPC Teleport { get; private set; } = null!;
-        public static ICombatBackend CombatBackend { get; private set; } = null!;
         public static AutoDutyIPC AutoDuty { get; private set; } = null!;
+
+        // Both backends are constructed up front (each only holds IPC gates) so the choice is a
+        // config read rather than a rebuild, and switching can stop the one being left behind.
+        private static ICombatBackend[] combatBackends = null!;
+
+        public static ICombatBackend CombatBackend => combatBackends[(int)C.Backend];
+
+        /// <summary>Switch autorotation plugin, stopping whichever backend was in use.</summary>
+        public static void SwitchCombatBackend(CombatBackendKind kind)
+        {
+            if (C.Backend == kind)
+                return;
+            CombatBackend.Disable();
+            C.Backend = kind;
+            C.Save();
+        }
+
         public static TaskManager TaskManager { get; private set; } = null!;
         public static DevTelemetry Telemetry { get; private set; } = null!;
 
@@ -50,15 +66,16 @@ namespace SealHunter
         {
             ECommonsMain.Init(PluginInterface, this, Module.DalamudReflector);
 
-            Navmesh = new NavmeshIPC();
-            Teleport = new TeleportIPC();
-            CombatBackend = new BossModIPC();
-            AutoDuty = new AutoDutyIPC();
-            TaskManager = new TaskManager(new TaskManagerConfiguration { TimeLimitMS = 20000, ShowDebug = false });
-
+            // Config first: the combat backend is selected from it.
             this.Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(PluginInterface);
             C = this.Configuration;
+
+            Navmesh = new NavmeshIPC();
+            Teleport = new TeleportIPC();
+            AutoDuty = new AutoDutyIPC();
+            combatBackends = [new BossModIPC(), new RotationSolverIPC()];
+            TaskManager = new TaskManager(new TaskManagerConfiguration { TimeLimitMS = 20000, ShowDebug = false });
 
             Telemetry = new DevTelemetry("SealHunter", () => C.DevLog, () => C.DevLogUrl,
                 err => Logger.Debug($"DevLog post failed: {err}"));

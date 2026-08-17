@@ -104,7 +104,14 @@ public static class Task_Engage
             TargetingHelper.SetTarget(target);
             var dist = Vector3.Distance(Player.Position, target.Position);
 
-            if (dist <= Plugin.C.MaxEngageRange)
+            // Stop where this job actually attacks from — a bard has no reason to close to melee.
+            // Without line of sight, halve the remaining gap instead: terrain has to be walked
+            // around, and repeating that each frame converges on a spot that can see the mob.
+            var range = CombatRange.AttackRange(target);
+            if (!LineOfSight.Clear(target))
+                range = Math.Min(range, dist) / 2f;
+
+            if (dist <= range)
             {
                 // In range: land before finishing so we never try to fight while airborne.
                 if (Player.Mounted)
@@ -136,7 +143,7 @@ public static class Task_Engage
                 lastPathPos = target.Position;
                 var flying = needFly && Player.Mounted;
                 // Flying: head straight to the mob; grounded: stop a standoff distance short.
-                var dest = flying ? target.Position : StandoffPoint(target.Position, Player.Position, Plugin.C.MaxEngageRange);
+                var dest = flying ? target.Position : CombatPositioning.StandoffPoint(target.Position, Player.Position, range);
                 Plugin.Navmesh.PathfindAndMoveTo(dest, flying);
                 Plugin.Telemetry?.Log($"approach repath dist={dist:0} h={heightDiff:0} fly={flying} idle={idle}");
             }
@@ -169,13 +176,18 @@ public static class Task_Engage
             // Wait for the specific engaged mob to die/despawn — NOT the soft-target. BossMod
             // autorotation may retarget to a stray aggro mob; a stray dying must not complete this
             // step, or we'd wait forever for a hunt-log credit that never comes.
-            return TargetingHelper.ObjectIsDeadOrGone(target, entry.Monster.Id);
+            if (TargetingHelper.ObjectIsDeadOrGone(target, entry.Monster.Id))
+                return true;
+            CombatPositioning.Maintain(target);
+            return false;
         }, "Wait for kill", new TaskManagerConfiguration { TimeLimitMS = Plugin.C.CombatTimeoutSeconds * 1000, AbortOnTimeout = false });
 
         // Stop attacking the instant the mob dies, so autorotation can't tag another while we wait.
         tm.Enqueue(() =>
         {
             Plugin.CombatBackend.Disable();
+            // Cancel any in-combat reposition still running toward the now-dead mob.
+            if (Plugin.Navmesh.IsRunning()) Plugin.Navmesh.Stop();
             return true;
         }, "Disengage");
 
@@ -234,16 +246,4 @@ public static class Task_Engage
         }, "Confirm kill / loop");
     }
 
-    /// <summary>A point ~attack-range out from the mob toward the player, snapped to the navmesh —
-    /// so we walk up next to the mob instead of trying to stand on top of it.</summary>
-    private static Vector3 StandoffPoint(Vector3 mob, Vector3 player, float range)
-    {
-        var dir = player - mob;
-        dir.Y = 0;
-        var len = dir.Length();
-        if (len < 0.1f)
-            return mob; // basically on top already; the in-range check handles stopping
-        var standoff = mob + dir / len * (range * 0.8f);
-        return Plugin.Navmesh.NearestPoint(standoff, 5f, 5f) ?? standoff;
-    }
 }

@@ -11,6 +11,19 @@ namespace SealHunter
         Both,           // GC first, then the current class log
     }
 
+    public enum CombatBackendKind
+    {
+        BossMod,                // BossMod Reborn, preset-driven
+        RotationSolverReborn,   // RSR in Manual mode
+    }
+
+    public enum BossModMovementMode
+    {
+        Auto,     // melee/tank: BossMod moves for uptime; ranged/healer: it stays put
+        Always,   // always let BossMod reposition in combat
+        Never,    // never; SealHunter owns all movement
+    }
+
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
@@ -19,7 +32,14 @@ namespace SealHunter
         public HuntMode Mode { get; set; } = HuntMode.GrandCompany;
 
         // Combat / search
-        public float MaxEngageRange { get; set; } = 3.5f;
+        public CombatBackendKind Backend { get; set; } = CombatBackendKind.BossMod;
+        public BossModMovementMode BossModMovement { get; set; } = BossModMovementMode.Auto;
+
+        // Stand-off distance per role, before hitbox radii. Melee mirrors the game's ~3y reach;
+        // ranged sits inside the 25y action range with room for the mob to drift.
+        public float MeleeEngageRange { get; set; } = 2.9f;
+        public float RangedEngageRange { get; set; } = 20f;
+
         public float MobSearchRadius { get; set; } = 60f;
         public int CombatTimeoutSeconds { get; set; } = 60;
         public int MaxConsecutiveScanFailures { get; set; } = 5;

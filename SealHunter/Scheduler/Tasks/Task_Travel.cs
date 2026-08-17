@@ -38,6 +38,8 @@ public static class Task_Travel
             {
                 TargetingHelper.SetTarget(foe);
                 Plugin.CombatBackend.Enable();
+                // Ranged jobs stripped BossMod's pathfinder, so nothing else closes the gap.
+                CombatPositioning.Maintain(foe);
             }
             return false;
         }, "Clear aggro before travel", new TaskManagerConfiguration { TimeLimitMS = 60000, AbortOnTimeout = false });

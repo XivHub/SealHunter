@@ -19,4 +19,8 @@ public interface ICombatBackend
 
     /// <summary>Whether autorotation is currently active.</summary>
     bool IsActive();
+
+    /// <summary>Whether the backend is currently repositioning the character itself. When false,
+    /// SealHunter has to keep itself in range and line of sight of the mob during the fight.</summary>
+    bool MovesPlayer { get; }
 }

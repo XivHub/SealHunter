@@ -5,9 +5,10 @@ using SealHunter.Combat;
 namespace SealHunter.IPC;
 
 /// <summary>
-/// Optional RotationSolver Reborn backend, adapted from Questionable's RotationSolverRebornModule.
-/// Alternative to BossMod; not used on the default path. ChangeOperatingMode(Manual) starts
-/// autorotation on the manually-set target.
+/// RotationSolver Reborn backend, adapted from Questionable's RotationSolverRebornModule.
+/// Selectable as an alternative to BossMod. Manual mode bypasses RSR's own engage settings and
+/// attacks whatever is targeted, which is exactly the split SealHunter wants: it picks the target
+/// and owns movement, RSR only presses buttons.
 /// </summary>
 public class RotationSolverIPC : ICombatBackend
 {
@@ -38,6 +39,10 @@ public class RotationSolverIPC : ICombatBackend
         {
             try
             {
+                // HasAction alone only says a gate was registered; the Test call is RSR's own
+                // "am I callable" probe and is what Questionable uses.
+                if (!changeOperatingMode.HasAction)
+                    return false;
                 test.InvokeAction("SealHunter probe");
                 return true;
             }
@@ -77,4 +82,7 @@ public class RotationSolverIPC : ICombatBackend
     }
 
     public bool IsActive() => active;
+
+    /// <summary>RSR only presses buttons; SealHunter keeps itself in range.</summary>
+    public bool MovesPlayer => false;
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 
@@ -16,9 +17,23 @@ namespace SealHunter.Windows
         public void Dispose() { }
 
         internal static readonly string[] ModeLabels = { "Grand Company log (seals)", "Class/Job log (XP)", "Both (GC, then class)" };
+        private static readonly string[] BackendLabels = { "BossMod Reborn", "RotationSolver Reborn" };
+        private static readonly string[] BossModMovementLabels = { "Auto (only for melee jobs)", "Always", "Never" };
+
+        // The backend presence probe is an IPC round-trip; poll it a couple of times a second
+        // instead of every frame the window is open.
+        private long lastBackendCheck;
+        private bool backendInstalled;
 
         public override void Draw()
         {
+            var now = Environment.TickCount64;
+            if (now - lastBackendCheck > 500 || lastBackendCheck == 0)
+            {
+                lastBackendCheck = now;
+                backendInstalled = Plugin.CombatBackend.Installed;
+            }
+
             ImGui.TextDisabled("Hunt");
             var mode = (int)cfg.Mode;
             if (ImGui.Combo("What to hunt", ref mode, ModeLabels, ModeLabels.Length))
@@ -29,7 +44,31 @@ namespace SealHunter.Windows
 
             ImGui.Separator();
             ImGui.TextDisabled("Combat & search");
-            FloatInput("Max engage range (y)", () => cfg.MaxEngageRange, v => cfg.MaxEngageRange = v);
+
+            var backend = (int)cfg.Backend;
+            if (ImGui.Combo("Autorotation plugin", ref backend, BackendLabels, BackendLabels.Length))
+            {
+                Plugin.SwitchCombatBackend((CombatBackendKind)backend);
+                lastBackendCheck = 0; // re-probe the newly selected plugin immediately
+            }
+            ImGui.SameLine();
+            ImGui.TextColored(backendInstalled ? new Vector4(0.4f, 0.9f, 0.4f, 1f) : new Vector4(0.9f, 0.4f, 0.4f, 1f),
+                backendInstalled ? "installed" : "not found");
+
+            if (cfg.Backend == CombatBackendKind.BossMod)
+            {
+                var movement = (int)cfg.BossModMovement;
+                if (ImGui.Combo("Let BossMod move me in combat", ref movement, BossModMovementLabels, BossModMovementLabels.Length))
+                {
+                    cfg.BossModMovement = (BossModMovementMode)movement;
+                    cfg.Save();
+                }
+                ImGui.TextDisabled("Auto keeps melee uptime but leaves ranged jobs where they stand.");
+            }
+
+            FloatInput("Melee engage range (y)", () => cfg.MeleeEngageRange, v => cfg.MeleeEngageRange = v);
+            FloatInput("Ranged engage range (y)", () => cfg.RangedEngageRange, v => cfg.RangedEngageRange = v);
+            ImGui.TextDisabled("Stand-off distance per role; hitbox sizes are added on top.");
             FloatInput("Mob search radius (y)", () => cfg.MobSearchRadius, v => cfg.MobSearchRadius = v);
             IntInput("Combat timeout (s)", () => cfg.CombatTimeoutSeconds, v => cfg.CombatTimeoutSeconds = v);
             IntInput("Max attempts before skipping a target", () => cfg.MaxConsecutiveScanFailures, v => cfg.MaxConsecutiveScanFailures = v);
