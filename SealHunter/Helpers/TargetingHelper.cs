@@ -33,14 +33,11 @@ public static class TargetingHelper
     /// id to match before treating the slot as "still our target".</summary>
     public static bool ObjectIsDeadOrGone(IGameObject obj, uint expectedNameId)
     {
-        var id = obj.GameObjectId;
-        foreach (var o in Plugin.ObjectTable)
-        {
-            if (o.GameObjectId != id) continue;
-            if (o is not IBattleNpc npc) return true; // slot now holds a non-battle object
-            if (npc.NameId != expectedNameId) return true; // slot reused for a different mob
-            return npc.IsDead || npc.CurrentHp == 0;
-        }
-        return true; // not in the table → despawned
+        // Indexed lookup, not a table walk: this runs every frame for the whole fight.
+        var o = Plugin.ObjectTable.SearchById(obj.GameObjectId);
+        if (o == null) return true; // not in the table → despawned
+        if (o is not IBattleNpc npc) return true; // slot now holds a non-battle object
+        if (npc.NameId != expectedNameId) return true; // slot reused for a different mob
+        return npc.IsDead || npc.CurrentHp == 0;
     }
 }

@@ -11,6 +11,11 @@ public static class CombatRange
     /// <summary>Fallback player hitbox radius when the local object isn't available yet.</summary>
     private const float DefaultHitbox = 0.5f;
 
+    // The role can only change when the job does, so the sheet read is memoized on the job id —
+    // this is read several times a frame while approaching.
+    private static uint cachedJob = uint.MaxValue;
+    private static bool cachedRanged;
+
     /// <summary>ClassJob roles 3 (ranged DPS, physical and caster) and 4 (healer) attack from range;
     /// 1 (tank) and 2 (melee DPS) have to close.</summary>
     public static bool IsRanged
@@ -19,8 +24,13 @@ public static class CombatRange
         {
             if (!Player.Available)
                 return false;
-            var role = Sheets.ClassJobSheet.GetRowOrDefault((uint)Player.Job)?.Role ?? 0;
-            return role is 3 or 4;
+            var job = (uint)Player.Job;
+            if (job != cachedJob)
+            {
+                cachedJob = job;
+                cachedRanged = Sheets.ClassJobSheet.GetRowOrDefault(job)?.Role is 3 or 4;
+            }
+            return cachedRanged;
         }
     }
 

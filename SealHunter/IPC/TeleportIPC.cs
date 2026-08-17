@@ -1,6 +1,6 @@
 using System;
 using ECommons.EzIpcManager;
-using ECommons.Reflection;
+using SealHunter.Helpers;
 
 namespace SealHunter.IPC;
 
@@ -15,7 +15,7 @@ public class TeleportIPC
 
     public TeleportIPC() => EzIPC.Init(this, Name, SafeWrapper.AnyException);
 
-    public static bool Installed => DalamudReflector.TryGetDalamudPlugin(Name, out _, false, true);
+    public static bool Installed => PluginPresence.IsInstalled(Name);
 
     /// <summary>Lifestream.Teleport(aetheryteId, subIndex) — returns whether it started.</summary>
     [EzIPC] public Func<uint, byte, bool> Teleport = null!;

@@ -45,8 +45,10 @@ public static class Task_Engage
         // spawns at the arrival point — covers more of the camp than a stationary 60y scan.
         tm.Enqueue(() =>
         {
-            // Scan around the player (not the static hint) so roaming covers more spawns.
-            target = MobLocator.FindNearest(entry.Monster.Id, Player.Position, Plugin.C.MobSearchRadius);
+            // Scan around the player (not the static hint) so roaming covers more spawns. Four scans
+            // a second is plenty for a spawn to be noticed, and each one walks the whole ObjectTable.
+            if (EzThrottler.Throttle("SH.Scan", 250))
+                target = MobLocator.FindNearest(entry.Monster.Id, Player.Position, Plugin.C.MobSearchRadius);
             if (target != null)
             {
                 if (Plugin.Navmesh.IsRunning()) Plugin.Navmesh.Stop();
@@ -194,12 +196,18 @@ public static class Task_Engage
         // The hunting-log credit lags the death by a moment. Wait for the count to actually update
         // before deciding whether another mob is needed — otherwise we over-kill by one.
         var killedBefore = entry.Killed;
+        var droppedStaleSnapshot = false;
         tm.Enqueue(() =>
         {
             if (target == null) return true;
-            // Invalidate the HuntPlan cache so the Refresh below reads live progress instead of
-            // the pre-kill snapshot.
-            HuntPlan.Invalidate();
+            // Drop the pre-kill snapshot once; after that the HuntPlan TTL re-reads live progress on
+            // its own. Invalidating every frame would rebuild the whole plan (a full MonsterNote walk
+            // plus a fresh entry list) on each of the ~8s worth of frames this step can wait.
+            if (!droppedStaleSnapshot)
+            {
+                HuntPlan.Invalidate();
+                droppedStaleSnapshot = true;
+            }
             var r = HuntPlan.Refresh(entry);
             return r == null || r.Killed > killedBefore;
         }, "Wait for kill credit", new TaskManagerConfiguration { TimeLimitMS = 8000, AbortOnTimeout = false });

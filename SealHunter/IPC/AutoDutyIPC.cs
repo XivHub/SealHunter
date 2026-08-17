@@ -1,7 +1,7 @@
 using System;
 using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Ipc.Exceptions;
-using ECommons.Reflection;
+using SealHunter.Helpers;
 
 namespace SealHunter.IPC;
 
@@ -25,7 +25,7 @@ public class AutoDutyIPC
         isStopped = Plugin.PluginInterface.GetIpcSubscriber<bool>("AutoDuty.IsStopped");
     }
 
-    public static bool Installed => DalamudReflector.TryGetDalamudPlugin(Name, out _, false, true);
+    public static bool Installed => PluginPresence.IsInstalled(Name);
 
     /// <summary>Run the duty whose instance territory is <paramref name="territoryType"/> once.</summary>
     public bool Run(uint territoryType)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using ECommons.EzIpcManager;
-using ECommons.Reflection;
+using SealHunter.Helpers;
 
 namespace SealHunter.IPC;
 
@@ -14,7 +14,7 @@ public class NavmeshIPC
 
     public NavmeshIPC() => EzIPC.Init(this, Name);
 
-    public static bool Installed => DalamudReflector.TryGetDalamudPlugin(Name, out _, false, true);
+    public static bool Installed => PluginPresence.IsInstalled(Name);
 
     [EzIPC("Nav.%m")] public readonly Func<bool> IsReady = null!;
     [EzIPC("Nav.%m")] public readonly Func<float> BuildProgress = null!;

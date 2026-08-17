@@ -43,6 +43,12 @@ namespace SealHunter.Windows
         private (bool ok, string message) deps;
         private List<HuntEntry> open = new();
         private List<HuntEntry> duty = new();
+        private List<DutyGroup> dutyGroups = new();
+
+        /// <summary>One dungeon's worth of duty-bound marks, resolved and formatted once per refresh
+        /// instead of per frame — the grouping, the sheet lookups and the joined mark list are all
+        /// too expensive to redo while the section is just sitting on screen.</summary>
+        private readonly record struct DutyGroup(uint Zone, string Name, bool Unlocked, bool Runnable, string Marks);
 
         private void Refresh()
         {
@@ -54,6 +60,16 @@ namespace SealHunter.Windows
             deps = Dependencies.CheckAll();
             open = HuntPlan.IncompleteOpenWorld();
             duty = HuntPlan.IncompleteDuty();
+
+            var autoDuty = AutoDutyIPC.Installed;
+            dutyGroups = duty.GroupBy(e => e.Location.Zone)
+                .Select(g =>
+                {
+                    var info = DutyResolver.Resolve(g.Key);
+                    return new DutyGroup(g.Key, info.Name, info.Unlocked, info.Unlocked && autoDuty,
+                        string.Join(", ", g.Select(e => $"{e.Monster.Name} {e.Killed}/{e.Required}")));
+                })
+                .ToList();
         }
 
         public override void Draw()
@@ -215,30 +231,27 @@ namespace SealHunter.Windows
 
         private void DrawDutyGroups()
         {
-            // Group duty marks by their instance zone — one dungeon run clears all its marks.
-            foreach (var group in duty.GroupBy(e => e.Location.Zone))
+            // Marks are grouped by their instance zone in Refresh() — one dungeon run clears all of them.
+            foreach (var group in dutyGroups)
             {
-                var info = DutyResolver.Resolve(group.Key);
-                var marks = string.Join(", ", group.Select(e => $"{e.Monster.Name} {e.Killed}/{e.Required}"));
-
-                ImGui.TextUnformatted(info.Name);
-                if (!info.Unlocked)
+                ImGui.TextUnformatted(group.Name);
+                if (!group.Unlocked)
                 {
                     ImGui.SameLine();
                     using (ImRaii.PushColor(ImGuiCol.Text, Red))
                         ImGui.TextUnformatted("(locked)");
                 }
-                else if (AutoDutyIPC.Installed)
+                else if (group.Runnable)
                 {
                     ImGui.SameLine();
-                    if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Play, $"Run##{group.Key}"))
-                        Plugin.AutoDuty.Run(group.Key);
+                    if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Play, $"Run##{group.Zone}"))
+                        Plugin.AutoDuty.Run(group.Zone);
                 }
 
-                var hint = !info.Unlocked ? " — unlock this dungeon first"
-                    : AutoDutyIPC.Installed ? "" : " — run the dungeon manually (AutoDuty not installed)";
+                var hint = !group.Unlocked ? " — unlock this dungeon first"
+                    : group.Runnable ? "" : " — run the dungeon manually (AutoDuty not installed)";
                 using (ImRaii.PushColor(ImGuiCol.Text, Dim))
-                    ImGui.BulletText(marks + hint);
+                    ImGui.BulletText(group.Marks + hint);
             }
         }
 
