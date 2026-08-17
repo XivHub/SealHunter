@@ -85,9 +85,25 @@ public static class SchedulerMain
         }
         if (cachedLocations != null && cachedLocationsMonsterId == cur.Monster.Id)
             return cachedLocations;
-        cachedLocations = cur.Monster.Locations.Where(l => l.IsOpenWorld).ToList();
+        cachedLocations = OrderCamps(cur.Monster.Locations);
         cachedLocationsMonsterId = cur.Monster.Id;
         return cachedLocations;
+    }
+
+    /// <summary>Open-world camps, nearest first: a camp in the zone we are already standing in beats
+    /// one that costs a teleport, and within that zone the closest one wins. Distance between zones
+    /// is meaningless, so the remaining camps keep their dataset order (OrderBy is stable).
+    /// Evaluated once per target — the list is cached per monster.</summary>
+    private static List<HuntingMonsterLocation> OrderCamps(List<HuntingMonsterLocation> all)
+    {
+        var here = Plugin.ClientState.TerritoryType;
+        var pos = Player.Available ? Player.Position : Vector3.Zero;
+        return all.Where(l => l.IsOpenWorld)
+            .OrderBy(l => l.Terri == here ? 0 : 1)
+            .ThenBy(l => l.Terri == here
+                ? Vector3.Distance(pos, MapCoords.MapToWorldFlat(l.Terri, l.Map, l.xCoord, l.yCoord) with { Y = pos.Y })
+                : 0f)
+            .ToList();
     }
 
     /// <summary>The camp currently being worked, or null.</summary>
