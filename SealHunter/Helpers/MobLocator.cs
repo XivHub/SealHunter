@@ -7,8 +7,10 @@ namespace SealHunter.Helpers;
 
 public static class MobLocator
 {
-    /// <summary>Nearest live BattleNpc currently targeting us (i.e. aggro'd) within radius, or null.</summary>
-    public static IBattleNpc? FindNearestAttacker(float radius)
+    /// <summary>Nearest live BattleNpc currently targeting us (i.e. aggro'd) within radius, or null.
+    /// <paramref name="ignore"/> is excluded from the search, for callers that are already dealing
+    /// with a particular mob and only want to know about the others.</summary>
+    public static IBattleNpc? FindNearestAttacker(float radius, IBattleNpc? ignore = null)
     {
         var meId = Player.Object?.GameObjectId ?? 0;
         if (meId == 0) return null;
@@ -19,6 +21,7 @@ public static class MobLocator
         {
             if (o is not IBattleNpc npc) continue;
             if (npc.IsDead || !npc.IsTargetable || npc.TargetObjectId != meId) continue;
+            if (ignore != null && npc.GameObjectId == ignore.GameObjectId) continue;
             var dSq = Vector3.DistanceSquared(npc.Position, Player.Position);
             if (dSq <= bestSq)
             {

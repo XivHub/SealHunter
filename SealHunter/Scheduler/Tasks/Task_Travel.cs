@@ -1,5 +1,4 @@
 using System.Numerics;
-using Dalamud.Game.ClientState.Conditions;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
@@ -25,25 +24,11 @@ public static class Task_Travel
         }
 
         var tm = Plugin.TaskManager;
+        var foughtEnRoute = false;
 
         // Can't teleport while in combat — if a stray mob aggro'd us, kill the attackers first.
-        tm.Enqueue(() =>
-        {
-            if (!Plugin.Condition[ConditionFlag.InCombat])
-            {
-                Plugin.CombatBackend.Disable();
-                return true;
-            }
-            var foe = MobLocator.FindNearestAttacker(40f);
-            if (foe != null)
-            {
-                TargetingHelper.SetTarget(foe);
-                Plugin.CombatBackend.Enable();
-                // Ranged jobs stripped BossMod's pathfinder, so nothing else closes the gap.
-                CombatPositioning.Maintain(foe);
-            }
-            return false;
-        }, "Clear aggro before travel", new TaskManagerConfiguration { TimeLimitMS = 60000, AbortOnTimeout = false });
+        tm.Enqueue(() => AggroGuard.Clear(),
+            "Clear aggro before travel", new TaskManagerConfiguration { TimeLimitMS = 60000, AbortOnTimeout = false });
 
         tm.Enqueue(() =>
         {
@@ -93,6 +78,20 @@ public static class Task_Travel
 
         tm.Enqueue(() =>
         {
+            // Aggro on the road: kill it, then restart travel from the top so we get back on the
+            // mount — fighting it off meant dismounting — instead of walking the rest of the route.
+            if (!AggroGuard.Clear())
+            {
+                foughtEnRoute = true;
+                return false;
+            }
+            if (foughtEnRoute)
+            {
+                foughtEnRoute = false;
+                Plugin.Navmesh.Stop();
+                return true; // queue drains, the dispatcher re-enqueues Task_Travel (State=Navigating)
+            }
+
             if (Vector3.Distance(Player.Position, SchedulerMain.CurrentHint) <= Plugin.C.MobSearchRadius)
             {
                 Plugin.Navmesh.Stop();

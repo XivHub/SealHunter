@@ -50,6 +50,14 @@ public static class Task_Engage
         // spawns at the arrival point — covers more of the camp than a stationary 60y scan.
         tm.Enqueue(() =>
         {
+            // Something pulled us mid-roam: kill it before circling the camp any further, and don't
+            // let the fight eat the search window.
+            if (!AggroGuard.Clear())
+            {
+                locateStart = Environment.TickCount64;
+                nextPatrolTick = Environment.TickCount64 + 3000;
+                return false;
+            }
             // Scan around the player (not the static hint) so roaming covers more spawns. Four scans
             // a second is plenty for a spawn to be noticed, and each one walks the whole ObjectTable.
             if (EzThrottler.Throttle("SH.Scan", 250))
@@ -80,7 +88,7 @@ public static class Task_Engage
                 Plugin.Telemetry?.Log($"patrol: idx={patrolIndex} dest=({snapped.X:0},{snapped.Y:0},{snapped.Z:0}) fly={fly}");
             }
             return false;
-        }, "Locate target (roam)", new TaskManagerConfiguration { TimeLimitMS = 35000, AbortOnTimeout = false });
+        }, "Locate target (roam)", new TaskManagerConfiguration { TimeLimitMS = 90000, AbortOnTimeout = false });
 
         tm.Enqueue(() =>
         {
@@ -108,6 +116,17 @@ public static class Task_Engage
         tm.Enqueue(() =>
         {
             if (target == null) return true;
+            // The mob can die while we're busy with an add (or to someone else's AoE); walking the
+            // rest of the way to a corpse just burns the step's time limit.
+            if (TargetingHelper.ObjectIsDeadOrGone(target, entry.Monster.Id))
+            {
+                target = null;
+                return true;
+            }
+            // Anything already on us gets killed first. Our target is exempt: it hitting us is not
+            // a diversion, and the in-range check below is about to engage it anyway.
+            if (!AggroGuard.Clear(target)) return false;
+
             TargetingHelper.SetTarget(target);
             var dist = Vector3.Distance(Player.Position, target.Position);
 
@@ -160,7 +179,7 @@ public static class Task_Engage
                 Plugin.Telemetry?.Log($"approach repath dist={dist:0} h={heightDiff:0} fly={flying} idle={idle}");
             }
             return false;
-        }, "Approach target", new TaskManagerConfiguration { TimeLimitMS = 90000, AbortOnTimeout = false });
+        }, "Approach target", new TaskManagerConfiguration { TimeLimitMS = 120000, AbortOnTimeout = false });
 
         tm.Enqueue(() =>
         {
