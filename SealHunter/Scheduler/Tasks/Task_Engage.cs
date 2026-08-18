@@ -15,6 +15,10 @@ namespace SealHunter.Scheduler.Tasks;
 /// or skip the entry after repeated failures (empty camp / unkillable).</summary>
 public static class Task_Engage
 {
+    /// <summary>How far short of attack range to leave the mount. Roughly covers a cruising-altitude
+    /// descent plus the dismount animation, so we are on foot by the time we arrive.</summary>
+    private const float LandingLeadDistance = 20f;
+
     public static void Enqueue()
     {
         var entry = SchedulerMain.Current;
@@ -114,23 +118,28 @@ public static class Task_Engage
             if (!LineOfSight.Clear(target))
                 range = Math.Min(range, dist) / 2f;
 
-            if (dist <= range)
-            {
-                // In range: land before finishing so we never try to fight while airborne.
-                if (Player.Mounted)
-                {
-                    if (EzThrottler.Throttle("SH.Land", 1000)) MountHelper.Dismount();
-                    return false;
-                }
-                if (Player.IsJumping) return false; // still falling/landing
-                Plugin.Navmesh.Stop();
-                return true;
-            }
-
             // Elevated target (e.g. Ixali platforms) needs a flying approach.
             var heightDiff = Math.Abs(target.Position.Y - Player.Position.Y);
             var needFly = Plugin.C.UseFlight && heightDiff > 5f
                           && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
+
+            // Getting out of a flight is a descent *and* a dismount, several seconds of it, so start
+            // it before arriving rather than hovering over the mob trying to fight from the saddle.
+            // Not for an elevated target: dropping out of the sky short of a platform lands us under it.
+            var landEarly = !needFly && Player.Mounted && dist <= range + LandingLeadDistance;
+
+            if (dist <= range || landEarly)
+            {
+                // Stop the path first — vnavmesh holding a fly route fights the descent.
+                if (Plugin.Navmesh.IsRunning() || Plugin.Navmesh.PathfindInProgress())
+                    Plugin.Navmesh.Stop();
+                if (!MountHelper.Ground())
+                    return false;
+                if (dist <= range)
+                    return true;
+                // Landed short of the target; walk the rest below.
+            }
+
             if (needFly && !Player.Mounted && !Player.Mounting)
             {
                 if (EzThrottler.Throttle("SH.ApproachMount", 3000)) MountHelper.Mount();
@@ -156,13 +165,9 @@ public static class Task_Engage
         tm.Enqueue(() =>
         {
             if (target == null) return true;
-            // Must be grounded to fight — land and wait if we're still mounted/airborne.
-            if (Player.Mounted)
-            {
-                if (EzThrottler.Throttle("SH.Land", 1000)) MountHelper.Dismount();
-                return false;
-            }
-            if (Player.IsJumping) return false;
+            // Must be grounded to fight. The approach normally lands us; this catches the case where
+            // the mob wandered into range while we were still coming down.
+            if (!MountHelper.Ground()) return false;
 
             Plugin.Navmesh.Stop();
             SchedulerMain.State = BotState.Engaging;
@@ -171,7 +176,7 @@ public static class Task_Engage
             var hp = target is IBattleChara c && c.MaxHp > 0 ? (int)(c.CurrentHp * 100 / c.MaxHp) : -1;
             Plugin.Telemetry?.Log($"engage: target={target.Name} hp={hp}% dist={Vector3.Distance(Player.Position, target.Position):0} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
             return true;
-        }, "Engage");
+        }, "Engage", new TaskManagerConfiguration { TimeLimitMS = 30000 });
 
         tm.Enqueue(() =>
         {
