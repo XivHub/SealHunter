@@ -10,7 +10,7 @@ using SealHunter.Helpers;
 using SealHunter.IPC;
 using SealHunter.Models;
 using SealHunter.Scheduler.Tasks;
-using ZhyraPluginKit.Game;
+using XivHubPluginKit.Game;
 
 namespace SealHunter.Scheduler;
 

@@ -1,6 +1,6 @@
 using System;
 using ECommons.EzIpcManager;
-using ZhyraPluginKit;
+using XivHubPluginKit;
 
 namespace SealHunter.IPC;
 

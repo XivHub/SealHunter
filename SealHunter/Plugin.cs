@@ -5,7 +5,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ECommons;
 using ECommons.Automation.NeoTaskManager;
-using ZhyraPluginKit;
+using XivHubPluginKit;
 using SealHunter.Combat;
 using SealHunter.Game;
 using SealHunter.Helpers;

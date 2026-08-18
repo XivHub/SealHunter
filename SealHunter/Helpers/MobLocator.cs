@@ -1,7 +1,7 @@
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.GameHelpers;
-using ZhyraPluginKit.Game;
+using XivHubPluginKit.Game;
 
 namespace SealHunter.Helpers;
 

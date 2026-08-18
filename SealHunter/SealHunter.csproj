@@ -22,15 +22,15 @@
 		<EmbeddedResource Include="Combat\BossModPreset_Overworld.json" />
 	</ItemGroup>
 
-	<!-- Shared helpers (linked source from the sibling ZhyraPluginKit repo). -->
+	<!-- Shared helpers (linked source from the sibling XivHubPluginKit repo). -->
 	<ItemGroup>
-		<Compile Include="..\..\ZhyraPluginKit\DevTelemetry.cs" Link="Dev\DevTelemetry.cs" />
-		<Compile Include="..\..\ZhyraPluginKit\KitServices.cs" Link="Kit\KitServices.cs" />
-		<Compile Include="..\..\ZhyraPluginKit\PluginPresence.cs" Link="Kit\PluginPresence.cs" />
-		<Compile Include="..\..\ZhyraPluginKit\Game\LineOfSight.cs" Link="Kit\Game\LineOfSight.cs" />
-		<Compile Include="..\..\ZhyraPluginKit\Game\MountHelper.cs" Link="Kit\Game\MountHelper.cs" />
-		<Compile Include="..\..\ZhyraPluginKit\Game\SprintHelper.cs" Link="Kit\Game\SprintHelper.cs" />
-		<Compile Include="..\..\ZhyraPluginKit\Game\FlightHelper.cs" Link="Kit\Game\FlightHelper.cs" />
+		<Compile Include="..\..\XivHubPluginKit\DevTelemetry.cs" Link="Dev\DevTelemetry.cs" />
+		<Compile Include="..\..\XivHubPluginKit\KitServices.cs" Link="Kit\KitServices.cs" />
+		<Compile Include="..\..\XivHubPluginKit\PluginPresence.cs" Link="Kit\PluginPresence.cs" />
+		<Compile Include="..\..\XivHubPluginKit\Game\LineOfSight.cs" Link="Kit\Game\LineOfSight.cs" />
+		<Compile Include="..\..\XivHubPluginKit\Game\MountHelper.cs" Link="Kit\Game\MountHelper.cs" />
+		<Compile Include="..\..\XivHubPluginKit\Game\SprintHelper.cs" Link="Kit\Game\SprintHelper.cs" />
+		<Compile Include="..\..\XivHubPluginKit\Game\FlightHelper.cs" Link="Kit\Game\FlightHelper.cs" />
 	</ItemGroup>
 
 </Project>
