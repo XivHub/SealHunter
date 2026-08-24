@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using XivHubPluginKit.UI;
 
 namespace SealHunter.Helpers;
 
@@ -28,28 +29,24 @@ public static class ActivityLog
         }
     }
 
-    private static readonly Vector4 Default = new(0.85f, 0.85f, 0.85f, 1f);
-    private static readonly Vector4 Good = new(0.45f, 0.85f, 0.45f, 1f);
-    private static readonly Vector4 Warn = new(0.95f, 0.75f, 0.35f, 1f);
-
     /// <summary>Add an event to the log and echo a chat line (for user-visible milestones).</summary>
     public static void Notify(string message, bool chat = true)
     {
-        Add(message, Default);
+        Add(message, HubStyle.Text);
         if (chat)
             Plugin.ChatGui.Print($"[SealHunter] {message}");
     }
 
     public static void Good_(string message, bool chat = true)
     {
-        Add(message, Good);
+        Add(message, HubStyle.Good);
         if (chat)
             Plugin.ChatGui.Print($"[SealHunter] {message}");
     }
 
     public static void Warn_(string message, bool chat = true)
     {
-        Add(message, Warn);
+        Add(message, HubStyle.Warn);
         if (chat)
             Plugin.ChatGui.PrintError($"[SealHunter] {message}");
     }

@@ -1,7 +1,7 @@
 using System;
-using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using XivHubPluginKit.UI;
 
 namespace SealHunter.Windows
 {
@@ -52,7 +52,7 @@ namespace SealHunter.Windows
                 lastBackendCheck = 0; // re-probe the newly selected plugin immediately
             }
             ImGui.SameLine();
-            ImGui.TextColored(backendInstalled ? new Vector4(0.4f, 0.9f, 0.4f, 1f) : new Vector4(0.9f, 0.4f, 0.4f, 1f),
+            ImGui.TextColored(backendInstalled ? HubStyle.Good : HubStyle.Bad,
                 backendInstalled ? "installed" : "not found");
 
             if (cfg.Backend == CombatBackendKind.BossMod)
@@ -100,6 +100,21 @@ namespace SealHunter.Windows
                 }
                 ImGui.TextDisabled("e.g. http://192.168.88.248:9999/log");
             }
+
+            DrawThemeSection();
+        }
+
+        /// <summary>
+        /// The theme editor is generated from the kit's option table, so this stays
+        /// one call however many themed values the kit grows.
+        /// </summary>
+        private static void DrawThemeSection()
+        {
+            ImGui.Separator();
+            ImGui.TextDisabled("Appearance");
+            ImGui.TextColored(HubStyle.Faint, "Shared with every XIV Hub plugin.");
+            ImGui.Spacing();
+            HubThemeEditor.Draw(Plugin.ThemeConfig);
         }
 
         private void FloatInput(string label, Func<float> get, Action<float> set)

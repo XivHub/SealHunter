@@ -11,18 +11,12 @@ using SealHunter.Game;
 using SealHunter.Helpers;
 using SealHunter.IPC;
 using SealHunter.Scheduler;
+using XivHubPluginKit.UI;
 
 namespace SealHunter.Windows
 {
     public class MainWindow : Window, IDisposable
     {
-        private static readonly Vector4 Red = new(0.92f, 0.34f, 0.34f, 1f);
-        private static readonly Vector4 Green = new(0.45f, 0.82f, 0.45f, 1f);
-        private static readonly Vector4 Amber = new(0.96f, 0.74f, 0.34f, 1f);
-        private static readonly Vector4 Blue = new(0.40f, 0.66f, 0.95f, 1f);
-        private static readonly Vector4 Dim = new(0.60f, 0.60f, 0.60f, 1f);
-        private static readonly Vector4 Accent = new(0.85f, 0.74f, 0.42f, 1f);
-
         private readonly Configuration cfg;
 
         public MainWindow(Configuration configuration) : base("SealHunter###SealHunterMain")
@@ -88,7 +82,7 @@ namespace SealHunter.Windows
 
         private void DrawHeader()
         {
-            using (ImRaii.PushColor(ImGuiCol.Text, Accent))
+            using (ImRaii.PushColor(ImGuiCol.Text, HubStyle.Accent))
             {
                 Icon(FontAwesomeIcon.Crosshairs);
                 ImGui.SameLine();
@@ -104,28 +98,26 @@ namespace SealHunter.Windows
             var (depsOk, depsMsg) = deps;
             var running = SchedulerMain.Running;
 
-            if (!running)
+            // Start and Stop are never on screen together, so the one that is showing is the
+            // window's single primary action.
+            using (HubStyle.Primary())
             {
-                using (ImRaii.Disabled(!depsOk))
-                using (ImRaii.PushColor(ImGuiCol.Button, new Vector4(0.20f, 0.50f, 0.24f, 1f)))
-                using (ImRaii.PushColor(ImGuiCol.ButtonHovered, new Vector4(0.26f, 0.62f, 0.30f, 1f)))
+                if (!running)
                 {
-                    if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Play, "Start"))
-                        SchedulerMain.EnablePlugin();
+                    using (ImRaii.Disabled(!depsOk))
+                    {
+                        if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Play, "Start"))
+                            SchedulerMain.EnablePlugin();
+                    }
                 }
-            }
-            else
-            {
-                using (ImRaii.PushColor(ImGuiCol.Button, new Vector4(0.55f, 0.20f, 0.20f, 1f)))
-                using (ImRaii.PushColor(ImGuiCol.ButtonHovered, new Vector4(0.68f, 0.26f, 0.26f, 1f)))
+                else if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Stop, "Stop"))
                 {
-                    if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Stop, "Stop"))
-                        SchedulerMain.DisablePlugin();
+                    SchedulerMain.DisablePlugin();
                 }
             }
 
             ImGui.SameLine();
-            using (ImRaii.PushColor(ImGuiCol.Text, depsOk ? Green : Red))
+            using (ImRaii.PushColor(ImGuiCol.Text, depsOk ? HubStyle.Good : HubStyle.Bad))
                 ImGui.TextUnformatted(depsOk ? "Ready" : depsMsg);
         }
 
@@ -160,7 +152,7 @@ namespace SealHunter.Windows
             ImGui.SameLine(110);
             if (cur != null)
             {
-                using (ImRaii.PushColor(ImGuiCol.Text, Blue))
+                using (ImRaii.PushColor(ImGuiCol.Text, HubStyle.Info))
                     ImGui.TextUnformatted($"{cur.Monster.Name}  {cur.Killed}/{cur.Required}");
                 ImGui.SameLine();
                 ImGui.TextDisabled($"({SchedulerMain.CurrentTargetElapsedSeconds}s)");
@@ -193,8 +185,7 @@ namespace SealHunter.Windows
                 var eta = remaining * avg;
                 ImGui.TextUnformatted(eta >= 3600 ? $"{eta / 3600:0.0}h" : $"{eta / 60:0}m{(int)eta % 60}s");
                 ImGui.SameLine();
-                using (ImRaii.PushColor(ImGuiCol.Text, Dim))
-                    ImGui.TextDisabled($"({avg:0.0}s/kill avg)");
+                ImGui.TextDisabled($"({avg:0.0}s/kill avg)");
             }
             else
             {
@@ -206,19 +197,16 @@ namespace SealHunter.Windows
         {
             if (open.Count == 0 && duty.Count == 0)
             {
-                using (ImRaii.PushColor(ImGuiCol.Text, Dim))
+                using (ImRaii.PushColor(ImGuiCol.Text, HubStyle.Faint))
                     ImGui.TextWrapped("Nothing to hunt for the selected mode. Check the mode in settings; for GC you must have joined a Grand Company, for Class/Job you must be on a class that has a hunting log.");
                 return;
             }
 
             ImGui.TextUnformatted($"Open-world remaining: {open.Count}");
-            using (ImRaii.PushColor(ImGuiCol.PlotHistogram, Green))
+            foreach (var e in open)
             {
-                foreach (var e in open)
-                {
-                    var frac = e.Required == 0 ? 1f : (float)e.Killed / e.Required;
-                    ImGui.ProgressBar(frac, new Vector2(-1, ImGui.GetTextLineHeight() + 4), $"{e.Monster.Name}  {e.Killed}/{e.Required}");
-                }
+                var frac = e.Required == 0 ? 1f : (float)e.Killed / e.Required;
+                ImGui.ProgressBar(frac, new Vector2(-1, ImGui.GetTextLineHeight() + 4), $"{e.Monster.Name}  {e.Killed}/{e.Required}");
             }
 
             if (duty.Count > 0)
@@ -238,7 +226,7 @@ namespace SealHunter.Windows
                 if (!group.Unlocked)
                 {
                     ImGui.SameLine();
-                    using (ImRaii.PushColor(ImGuiCol.Text, Red))
+                    using (ImRaii.PushColor(ImGuiCol.Text, HubStyle.Warn))
                         ImGui.TextUnformatted("(locked)");
                 }
                 else if (group.Runnable)
@@ -250,7 +238,7 @@ namespace SealHunter.Windows
 
                 var hint = !group.Unlocked ? " — unlock this dungeon first"
                     : group.Runnable ? "" : " — run the dungeon manually (AutoDuty not installed)";
-                using (ImRaii.PushColor(ImGuiCol.Text, Dim))
+                using (ImRaii.PushColor(ImGuiCol.Text, HubStyle.Faint))
                     ImGui.BulletText(group.Marks + hint);
             }
         }
@@ -258,7 +246,6 @@ namespace SealHunter.Windows
         private void DrawActivityLog()
         {
             ImGui.TextDisabled("Activity");
-            using var style = ImRaii.PushStyle(ImGuiStyleVar.ChildRounding, 6f);
             using var child = ImRaii.Child("##log", new Vector2(-1, 150), true);
             if (!child) return;
 
@@ -266,7 +253,7 @@ namespace SealHunter.Windows
             for (var i = 0; i < entries.Count; i++)
             {
                 var e = entries[i];
-                using (ImRaii.PushColor(ImGuiCol.Text, Dim))
+                using (ImRaii.PushColor(ImGuiCol.Text, HubStyle.Faint))
                     ImGui.TextUnformatted(e.Time);
                 ImGui.SameLine();
                 using (ImRaii.PushColor(ImGuiCol.Text, e.Color))
@@ -285,12 +272,12 @@ namespace SealHunter.Windows
 
         private static Vector4 StateColor(BotState s) => s switch
         {
-            BotState.Idle => Dim,
-            BotState.Done => Green,
-            BotState.Error => Red,
-            BotState.Recovering => Amber,
-            BotState.PausedForDuty => Amber,
-            _ => Blue,
+            BotState.Idle => HubStyle.Faint,
+            BotState.Done => HubStyle.Good,
+            BotState.Error => HubStyle.Bad,
+            BotState.Recovering => HubStyle.Warn,
+            BotState.PausedForDuty => HubStyle.Warn,
+            _ => HubStyle.Info,
         };
     }
 }
