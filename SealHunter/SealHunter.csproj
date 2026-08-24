@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<Authors>Zhyra</Authors>
 		<Company>ZhyraPlugins</Company>
-		<Version>0.8.2</Version>
+		<Version>0.8.3</Version>
 		<Description>Automates the Grand Company hunting log.</Description>
 		<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/edg-l/SealHunter</PackageProjectUrl>
