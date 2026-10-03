@@ -94,7 +94,7 @@ public static class Task_Engage
                 var dest = SchedulerMain.CurrentHint + off;
                 var snapped = Plugin.Navmesh.NearestPoint(dest, 5f, 5f) ?? dest;
                 var fly = Plugin.C.UseFlight && Player.Mounted && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
-                Plugin.Navmesh.PathfindAndMoveTo(snapped, fly);
+                Plugin.Navmesh.PathTo(snapped, fly);
                 nextPatrolTick = Environment.TickCount64 + 6000; // arrive + scan, then next point
                 Plugin.Telemetry?.Log($"patrol: idx={patrolIndex} dest=({snapped.X:0},{snapped.Y:0},{snapped.Z:0}) fly={fly}");
             }
@@ -204,7 +204,7 @@ public static class Task_Engage
                              && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
                 // Flying: head straight to the mob; grounded: stop a standoff distance short.
                 var dest = flying ? target.Position : CombatPositioning.StandoffPoint(target.Position, Player.Position, range);
-                Plugin.Navmesh.PathfindAndMoveTo(dest, flying);
+                Plugin.Navmesh.PathTo(dest, flying);
                 Plugin.Telemetry?.Log($"approach repath dist={dist:0} h={heightDiff:0} fly={flying} idle={idle}");
             }
             return false;

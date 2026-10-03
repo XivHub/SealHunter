@@ -121,9 +121,10 @@ public static class SchedulerMain
     private static long stopGuardUntil;
 
     // --- Anti-stuck watchdog ---
-    // While travelling (Teleporting/Navigating), track player movement. If navmesh reports a move
-    // is running but the player hasn't moved > 1y for StuckTimeoutSeconds, escalate:
-    //   1) re-path to CurrentHint; 2) jump; 3) re-teleport (sets State=Teleporting to redo travel).
+    // While travelling, roaming a camp or approaching a mob, track player movement. If navmesh
+    // reports a move is running but the player hasn't moved > 1y for StuckTimeoutSeconds, escalate:
+    //   1) re-path to the move's own destination; 2) jump; 3) re-teleport (sets State=Teleporting
+    //   to redo travel). Not during a fight: AggroGuard and the rotation own movement there.
     private static Vector3 lastWatchPos;
     private static long lastWatchMovedTick;
     private static int stuckEscalation; // 0=ok, 1=repathed, 2=jumped, 3=re-teleport
@@ -228,8 +229,10 @@ public static class SchedulerMain
             return;
         }
 
-        // Anti-stuck watchdog: runs during travel while navmesh is actively moving us.
-        if (State is BotState.Teleporting or BotState.Navigating)
+        // Anti-stuck watchdog: runs during travel, camp roaming and the approach (all of which run in
+        // Locating) while navmesh is actively moving us.
+        if (State is BotState.Teleporting or BotState.Navigating or BotState.Locating
+            && !Plugin.Condition[ConditionFlag.InCombat])
             WatchdogTick();
 
         // --- Per-state dispatch (only when nothing is queued) ---
@@ -291,15 +294,14 @@ public static class SchedulerMain
             return; // within the window
 
         // Stuck. Escalate.
-        var hint = CurrentHint;
+        var dest = Plugin.Navmesh.LastDestination;
+        Plugin.Telemetry?.Log($"watchdog: stuck state={State} step=\"{CurrentAction}\" escalation={stuckEscalation} pos=({pos.X:0},{pos.Y:0},{pos.Z:0}) dest=({dest.X:0},{dest.Y:0},{dest.Z:0})");
         switch (stuckEscalation)
         {
             case 0:
                 ActivityLog.Warn_($"Stuck for {Plugin.C.StuckTimeoutSeconds}s; re-pathing.", chat: false);
                 Plugin.Navmesh.Stop();
-                var fly = Plugin.C.UseFlight && Player.Mounted
-                          && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
-                Plugin.Navmesh.PathfindAndMoveTo(hint, fly);
+                Plugin.Navmesh.PathTo(dest, Plugin.Navmesh.LastFly && Player.Mounted);
                 stuckEscalation = 1;
                 lastWatchMovedTick = Environment.TickCount64; // reset window for next escalation
                 break;

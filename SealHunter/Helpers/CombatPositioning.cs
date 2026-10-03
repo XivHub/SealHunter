@@ -46,7 +46,7 @@ public static class CombatPositioning
         if (!EzThrottler.Throttle("SH.Reposition", 1500))
             return;
 
-        Plugin.Navmesh.PathfindAndMoveTo(StandoffPoint(target.Position, Player.Position, range), false);
+        Plugin.Navmesh.PathTo(StandoffPoint(target.Position, Player.Position, range), false);
         Plugin.Telemetry?.Log($"reposition: dist={dist:0} range={range:0} los={los}");
     }
 }

@@ -34,4 +34,18 @@ public class NavmeshIPC
     [EzIPC("Query.Mesh.%m")] public readonly Func<Vector3, float, float, Vector3?> NearestPoint = null!;
     [EzIPC("Query.Mesh.%m")] public readonly Func<Vector3, bool, float, Vector3?> PointOnFloor = null!;
     [EzIPC("Query.Mesh.%m")] public readonly Func<Vector3, float, float, Vector3?> NearestPointReachable = null!;
+
+    /// <summary>Where the last <see cref="PathTo"/> was headed, so the anti-stuck watchdog can
+    /// re-path to the same place instead of guessing.</summary>
+    public Vector3 LastDestination { get; private set; }
+
+    public bool LastFly { get; private set; }
+
+    /// <summary>Every SealHunter move goes through here rather than <see cref="PathfindAndMoveTo"/>.</summary>
+    public bool PathTo(Vector3 destination, bool fly)
+    {
+        LastDestination = destination;
+        LastFly = fly;
+        return PathfindAndMoveTo(destination, fly);
+    }
 }

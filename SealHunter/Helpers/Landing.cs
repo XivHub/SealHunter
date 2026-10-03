@@ -57,7 +57,7 @@ public static class Landing
             spot = PickSpot(mob, range, attempt);
             spotIssuedAt = now;
             landingSince = 0;
-            Plugin.Navmesh.PathfindAndMoveTo(spot.Value, true);
+            Plugin.Navmesh.PathTo(spot.Value, true);
             Plugin.Telemetry?.Log($"land: attempt={attempt} spot=({spot.Value.X:0},{spot.Value.Y:0},{spot.Value.Z:0}) dist={Vector3.Distance(Player.Position, spot.Value):0}");
         }
 
@@ -71,7 +71,7 @@ public static class Landing
             else if (!Plugin.Navmesh.IsRunning() && !Plugin.Navmesh.PathfindInProgress()
                      && EzThrottler.Throttle("SH.LandRepath", 2000))
             {
-                Plugin.Navmesh.PathfindAndMoveTo(spot.Value, true);
+                Plugin.Navmesh.PathTo(spot.Value, true);
             }
             return false;
         }

@@ -70,7 +70,7 @@ public static class Task_Travel
         {
             // Only fly when actually mounted — a fly path on a grounded character just freezes navmesh.
             var fly = Plugin.C.UseFlight && Player.Mounted && FlightHelper.FlyingUnlocked(loc.Terri);
-            Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, fly);
+            Plugin.Navmesh.PathTo(SchedulerMain.CurrentHint, fly);
             EzThrottler.Throttle("SH.RepathTravel", 3000); // prime: don't re-issue immediately
             Plugin.Telemetry?.Log($"travel: pathfind hint=({SchedulerMain.CurrentHint.X:0},{SchedulerMain.CurrentHint.Y:0},{SchedulerMain.CurrentHint.Z:0}) dist={Vector3.Distance(Player.Position, SchedulerMain.CurrentHint):0} fly={fly} flyUnlocked={FlightHelper.FlyingUnlocked(loc.Terri)} mounted={Player.Mounted}");
             return true;
@@ -106,7 +106,7 @@ public static class Task_Travel
             // and then at most once every few seconds — never re-issue every frame.
             if (!Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning()
                 && EzThrottler.Throttle("SH.RepathTravel", 3000))
-                Plugin.Navmesh.PathfindAndMoveTo(SchedulerMain.CurrentHint, Plugin.C.UseFlight && Player.Mounted && FlightHelper.FlyingUnlocked(loc.Terri));
+                Plugin.Navmesh.PathTo(SchedulerMain.CurrentHint, Plugin.C.UseFlight && Player.Mounted && FlightHelper.FlyingUnlocked(loc.Terri));
             return false;
         }, "Travel to camp", new TaskManagerConfiguration { TimeLimitMS = 180000 });
     }
