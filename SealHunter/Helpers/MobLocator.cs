@@ -1,7 +1,9 @@
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.GameHelpers;
+using ECommons.Throttlers;
 using XivHubPluginKit.Game;
+using CSGameObject = FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject;
 
 namespace SealHunter.Helpers;
 
@@ -32,7 +34,14 @@ public static class MobLocator
         return best;
     }
 
-    /// <summary>Nearest live, attackable BattleNpc matching the given BNpcName id within radius of the hint.
+    /// <summary>Whether the mob was spawned by a FATE. FATE spawns often reuse a hunting-log mob's name,
+    /// but fighting one drags us into the FATE's level sync and its crowd, so the search skips them.</summary>
+    public static bool IsFateMob(IGameObject o) => FateIdOf(o) != 0;
+
+    private static unsafe ushort FateIdOf(IGameObject o) => ((CSGameObject*)o.Address)->FateId;
+
+    /// <summary>Nearest live, attackable BattleNpc matching the given BNpcName id within radius of the hint,
+    /// excluding FATE spawns.
     /// Single pass over the ObjectTable, distance-squared, no LINQ allocations.
     /// <para>A mob we can see is worth more than a marginally closer one behind a cliff, so the
     /// nearest candidate with clear line of sight wins. It is only a preference: if nothing is
@@ -49,6 +58,12 @@ public static class MobLocator
         {
             if (o is not IBattleNpc npc) continue;
             if (npc.NameId != bNpcNameId || npc.IsDead || !npc.IsTargetable) continue;
+            if (IsFateMob(npc))
+            {
+                if (EzThrottler.Throttle($"SH.FateSkip.{npc.GameObjectId}", 30000))
+                    Plugin.Telemetry?.Log($"locate: skipping FATE mob {npc.Name} fate={FateIdOf(npc)}");
+                continue;
+            }
 
             var dSq = Vector3.DistanceSquared(npc.Position, hint);
             if (dSq > nearestSq && dSq > nearestVisibleSq)

@@ -19,6 +19,15 @@ public static class Task_Engage
     /// descent plus the dismount animation, so we are on foot by the time we arrive.</summary>
     private const float LandingLeadDistance = 20f;
 
+    /// <summary>Past this, riding to the next mob beats walking even with the mount and dismount
+    /// animations (about 1s each) counted. Ring legs and the camp search radius put the next mob
+    /// anywhere from a few yalms to 60y away.</summary>
+    private const float MountForApproachDistance = 35f;
+
+    /// <summary>Mount roulette is a 1s cast; a mount that has not happened by this point is not
+    /// going to (no mounting in this area, or something keeps interrupting it).</summary>
+    private const long MountTimeoutMs = 5000;
+
     public static void Enqueue()
     {
         var entry = SchedulerMain.Current;
@@ -45,6 +54,8 @@ public static class Task_Engage
         var patrolIndex = 0;
         var lastPathPos = Vector3.Zero;
         long engageStartTick = 0; // set when the Engage step fires, for kill-time stats
+        long mountSince = 0;
+        var mountFailed = false;
 
         // Locate within a bounded window, roaming the camp on a ring around the hint when nothing
         // spawns at the arrival point — covers more of the camp than a stationary 60y scan.
@@ -145,7 +156,8 @@ public static class Task_Engage
             // Getting out of a flight is a descent *and* a dismount, several seconds of it, so start
             // it before arriving rather than hovering over the mob trying to fight from the saddle.
             // Not for an elevated target: dropping out of the sky short of a platform lands us under it.
-            var landEarly = !needFly && Player.Mounted && dist <= range + LandingLeadDistance;
+            // A ground mount dismounts on the spot, so it rides all the way in.
+            var landEarly = !needFly && Plugin.Condition[ConditionFlag.InFlight] && dist <= range + LandingLeadDistance;
 
             if (Player.Mounted && (dist <= range || landEarly))
             {
@@ -156,10 +168,29 @@ public static class Task_Engage
             if (dist <= range)
                 return true;
 
-            if (needFly && !Player.Mounted && !Player.Mounting)
+            // An elevated mob has to be flown to; a far one is quicker to ride to.
+            var wantMount = needFly || (Plugin.C.UseMount && dist > MountForApproachDistance);
+            if (Player.Mounted)
+                mountSince = 0; // the timeout is per attempt, not per approach
+            if (wantMount && !Player.Mounted && !mountFailed && !Plugin.Condition[ConditionFlag.InCombat])
             {
-                if (EzThrottler.Throttle("SH.ApproachMount", 3000)) MountHelper.Mount();
-                return false;
+                var now = Environment.TickCount64;
+                if (mountSince == 0)
+                    mountSince = now;
+                if (now - mountSince > MountTimeoutMs)
+                {
+                    mountFailed = true;
+                    Plugin.Telemetry?.Log($"approach: no mount after {MountTimeoutMs / 1000}s, going on foot");
+                }
+                else
+                {
+                    // Moving interrupts the mount cast.
+                    if (Plugin.Navmesh.IsRunning() || Plugin.Navmesh.PathfindInProgress())
+                        Plugin.Navmesh.Stop();
+                    if (!Player.Mounting && EzThrottler.Throttle("SH.ApproachMount", 1500))
+                        MountHelper.Mount();
+                    return false;
+                }
             }
 
             // While far, ride the existing path (only repath if stalled); only re-track once close.
@@ -169,7 +200,8 @@ public static class Task_Engage
             if ((idle || (closeBy && moved)) && EzThrottler.Throttle("SH.Approach", 700))
             {
                 lastPathPos = target.Position;
-                var flying = needFly && Player.Mounted;
+                var flying = Player.Mounted && Plugin.C.UseFlight
+                             && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
                 // Flying: head straight to the mob; grounded: stop a standoff distance short.
                 var dest = flying ? target.Position : CombatPositioning.StandoffPoint(target.Position, Player.Position, range);
                 Plugin.Navmesh.PathfindAndMoveTo(dest, flying);
