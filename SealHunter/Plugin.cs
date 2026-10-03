@@ -90,8 +90,8 @@ namespace SealHunter
             Telemetry = new DevTelemetry("SealHunter", () => C.DevLog, () => C.DevLogUrl,
                 err => Logger.Debug($"DevLog post failed: {err}"));
 
-            mainWindow = new MainWindow(this.Configuration);
             configWindow = new ConfigWindow(this.Configuration);
+            mainWindow = new MainWindow(this.Configuration, () => configWindow.IsOpen = true);
             WindowSystem.AddWindow(mainWindow);
             WindowSystem.AddWindow(configWindow);
 

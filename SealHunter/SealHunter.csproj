@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<Authors>Zhyra</Authors>
 		<Company>ZhyraPlugins</Company>
-		<Version>0.8.3</Version>
+		<Version>0.8.4</Version>
 		<Description>Automates the Grand Company hunting log.</Description>
 		<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/edg-l/SealHunter</PackageProjectUrl>
@@ -35,6 +35,7 @@
 		<Compile Include="..\..\XivHubPluginKit\UI\HubStyle.cs" Link="Kit\UI\HubStyle.cs" />
 		<Compile Include="..\..\XivHubPluginKit\UI\HubThemeConfig.cs" Link="Kit\UI\HubThemeConfig.cs" />
 		<Compile Include="..\..\XivHubPluginKit\UI\HubThemeEditor.cs" Link="Kit\UI\HubThemeEditor.cs" />
+		<Compile Include="..\..\XivHubPluginKit\UI\HubText.cs" Link="Kit\UI\HubText.cs" />
 	</ItemGroup>
 
 </Project>

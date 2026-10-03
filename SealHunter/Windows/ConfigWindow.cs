@@ -52,7 +52,7 @@ namespace SealHunter.Windows
                 lastBackendCheck = 0; // re-probe the newly selected plugin immediately
             }
             ImGui.SameLine();
-            ImGui.TextColored(backendInstalled ? HubStyle.Good : HubStyle.Bad,
+            HubText.Inline(backendInstalled ? HubStyle.Good : HubStyle.Bad,
                 backendInstalled ? "installed" : "not found");
 
             if (cfg.Backend == CombatBackendKind.BossMod)
@@ -112,7 +112,7 @@ namespace SealHunter.Windows
         {
             ImGui.Separator();
             ImGui.TextDisabled("Appearance");
-            ImGui.TextColored(HubStyle.Faint, "Shared with every XIV Hub plugin.");
+            HubText.Faint("Shared with every XIV Hub plugin.");
             ImGui.Spacing();
             HubThemeEditor.Draw(Plugin.ThemeConfig);
         }

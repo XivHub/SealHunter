@@ -18,10 +18,12 @@ namespace SealHunter.Windows
     public class MainWindow : Window, IDisposable
     {
         private readonly Configuration cfg;
+        private readonly Action openSettings;
 
-        public MainWindow(Configuration configuration) : base("SealHunter###SealHunterMain")
+        public MainWindow(Configuration configuration, Action openSettings) : base("SealHunter###SealHunterMain")
         {
             cfg = configuration;
+            this.openSettings = openSettings;
             SizeConstraints = new WindowSizeConstraints
             {
                 MinimumSize = new Vector2(380, 380),
@@ -90,6 +92,11 @@ namespace SealHunter.Windows
             }
             ImGui.SameLine();
             ImGui.TextDisabled("· GC hunting log");
+
+            const string settingsLabel = "Settings";
+            ImGui.SameLine(ImGui.GetContentRegionMax().X - ImGuiComponents.GetIconButtonWithTextWidth(FontAwesomeIcon.Cog, settingsLabel));
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Cog, settingsLabel))
+                openSettings();
             ImGui.Separator();
         }
 

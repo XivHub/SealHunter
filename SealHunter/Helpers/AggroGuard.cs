@@ -32,7 +32,7 @@ public static class AggroGuard
             Plugin.Navmesh.Stop();
         // Nothing can be cast from the saddle: enabling the rotation while mounted just leaves us
         // sitting there taking hits. Combat does not throw us off by itself, so we do it.
-        if (!MountHelper.Ground())
+        if (!Landing.Step(foe, CombatRange.AttackRange(foe)))
             return false;
         // Enabling is several IPC calls and a preset rebuild, so only on the transition.
         if (!Plugin.CombatBackend.IsActive())

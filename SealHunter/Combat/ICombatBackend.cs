@@ -23,4 +23,9 @@ public interface ICombatBackend
     /// <summary>Whether the backend is currently repositioning the character itself. When false,
     /// SealHunter has to keep itself in range and line of sight of the mob during the fight.</summary>
     bool MovesPlayer { get; }
+
+    /// <summary>What the backing plugin itself reports, read over IPC, for the dev log. It can
+    /// disagree with <see cref="IsActive"/>: that is what SealHunter asked for, this is what the
+    /// plugin is doing.</summary>
+    string ReportedState();
 }

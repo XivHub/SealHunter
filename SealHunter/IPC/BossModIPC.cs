@@ -28,6 +28,7 @@ public class BossModIPC : ICombatBackend
     private readonly ICallGateSubscriber<string, bool, bool> createPreset;
     private readonly ICallGateSubscriber<string, bool> setPreset;
     private readonly ICallGateSubscriber<bool> clearPreset;
+    private readonly ICallGateSubscriber<string?> getActivePreset;
 
     private bool active;
 
@@ -42,6 +43,7 @@ public class BossModIPC : ICombatBackend
         createPreset = Plugin.PluginInterface.GetIpcSubscriber<string, bool, bool>($"{PluginName}.Presets.Create");
         setPreset = Plugin.PluginInterface.GetIpcSubscriber<string, bool>($"{PluginName}.Presets.SetActive");
         clearPreset = Plugin.PluginInterface.GetIpcSubscriber<bool>($"{PluginName}.Presets.ClearActive");
+        getActivePreset = Plugin.PluginInterface.GetIpcSubscriber<string?>($"{PluginName}.Presets.GetActive");
     }
 
     public string Name => "BossMod Reborn";
@@ -105,6 +107,18 @@ public class BossModIPC : ICombatBackend
     public bool IsActive() => active;
 
     public bool MovesPlayer => active && presetHasMovement == true;
+
+    public string ReportedState()
+    {
+        try
+        {
+            return $"preset={getActivePreset.InvokeFunc() ?? "none"}";
+        }
+        catch (IpcError e)
+        {
+            return $"err:{e.GetType().Name}";
+        }
+    }
 
     /// <summary>Whether the active preset should carry BossMod's pathfinder. On Auto only the jobs
     /// that have to be in melee get it; a ranged job that is already in range must not walk in.</summary>

@@ -147,17 +147,14 @@ public static class Task_Engage
             // Not for an elevated target: dropping out of the sky short of a platform lands us under it.
             var landEarly = !needFly && Player.Mounted && dist <= range + LandingLeadDistance;
 
-            if (dist <= range || landEarly)
+            if (Player.Mounted && (dist <= range || landEarly))
             {
-                // Stop the path first — vnavmesh holding a fly route fights the descent.
-                if (Plugin.Navmesh.IsRunning() || Plugin.Navmesh.PathfindInProgress())
-                    Plugin.Navmesh.Stop();
-                if (!MountHelper.Ground())
+                if (!Landing.Step(target, range))
                     return false;
-                if (dist <= range)
-                    return true;
                 // Landed short of the target; walk the rest below.
             }
+            if (dist <= range)
+                return true;
 
             if (needFly && !Player.Mounted && !Player.Mounting)
             {
@@ -186,14 +183,16 @@ public static class Task_Engage
             if (target == null) return true;
             // Must be grounded to fight. The approach normally lands us; this catches the case where
             // the mob wandered into range while we were still coming down.
-            if (!MountHelper.Ground()) return false;
+            if (!Landing.Step(target, CombatRange.AttackRange(target))) return false;
 
             Plugin.Navmesh.Stop();
             SchedulerMain.State = BotState.Engaging;
             Plugin.CombatBackend.Enable();
             engageStartTick = Environment.TickCount64;
             var hp = target is IBattleChara c && c.MaxHp > 0 ? (int)(c.CurrentHp * 100 / c.MaxHp) : -1;
-            Plugin.Telemetry?.Log($"engage: target={target.Name} hp={hp}% dist={Vector3.Distance(Player.Position, target.Position):0} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
+            Plugin.Telemetry?.Log($"engage: target={target.Name} hp={hp}% dist={Vector3.Distance(Player.Position, target.Position):0} " +
+                $"job={Player.Job} backend={Plugin.CombatBackend.Name}:{Plugin.CombatBackend.ReportedState()} " +
+                $"targeted={Plugin.TargetManager.Target?.GameObjectId == target.GameObjectId} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
             return true;
         }, "Engage", new TaskManagerConfiguration { TimeLimitMS = 30000 });
 

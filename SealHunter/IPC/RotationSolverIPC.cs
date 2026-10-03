@@ -22,6 +22,7 @@ public class RotationSolverIPC : ICombatBackend
 
     private readonly ICallGateSubscriber<string, object> test;
     private readonly ICallGateSubscriber<StateCommandType, object> changeOperatingMode;
+    private readonly ICallGateSubscriber<bool> autorotationActive;
 
     private bool active;
 
@@ -29,6 +30,7 @@ public class RotationSolverIPC : ICombatBackend
     {
         test = Plugin.PluginInterface.GetIpcSubscriber<string, object>("RotationSolverReborn.Test");
         changeOperatingMode = Plugin.PluginInterface.GetIpcSubscriber<StateCommandType, object>("RotationSolverReborn.ChangeOperatingMode");
+        autorotationActive = Plugin.PluginInterface.GetIpcSubscriber<bool>("RotationSolverReborn.AutorotationActive");
     }
 
     public string Name => "RotationSolver Reborn";
@@ -59,6 +61,7 @@ public class RotationSolverIPC : ICombatBackend
         {
             changeOperatingMode.InvokeAction(StateCommandType.Manual);
             active = true;
+            Plugin.Telemetry?.Log($"rsr: enable Manual -> reports {ReportedState()}");
         }
         catch (IpcError e)
         {
@@ -85,4 +88,16 @@ public class RotationSolverIPC : ICombatBackend
 
     /// <summary>RSR only presses buttons; SealHunter keeps itself in range.</summary>
     public bool MovesPlayer => false;
+
+    public string ReportedState()
+    {
+        try
+        {
+            return autorotationActive.InvokeFunc() ? "on" : "off";
+        }
+        catch (IpcError e)
+        {
+            return $"err:{e.GetType().Name}";
+        }
+    }
 }

@@ -332,7 +332,9 @@ public static class SchedulerMain
                $"elapsed={CurrentTargetElapsedSeconds}s terri={Plugin.ClientState.TerritoryType} " +
                $"pos=({pos.X:0},{pos.Y:0},{pos.Z:0}) navRun={Plugin.Navmesh.IsRunning()} " +
                $"navBusy={Plugin.Navmesh.PathfindInProgress()} inCombat={Plugin.Condition[ConditionFlag.InCombat]} " +
-               $"botCombat={Plugin.CombatBackend.IsActive()} hasTgt={tgt != null} tgtHp={tgtHp}% queued={Plugin.TaskManager.NumQueuedTasks}";
+               $"botCombat={Plugin.CombatBackend.IsActive()} backend={Plugin.CombatBackend.Name}:{Plugin.CombatBackend.ReportedState()} " +
+               $"mounted={Player.Mounted} flying={Plugin.Condition[ConditionFlag.InFlight]} casting={Player.IsCasting} " +
+               $"hasTgt={tgt != null} tgtHp={tgtHp}% queued={Plugin.TaskManager.NumQueuedTasks}";
     }
 
     private static void EnterPause(BotState pause)
