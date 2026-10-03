@@ -187,7 +187,7 @@ public static class Task_Engage
 
             Plugin.Navmesh.Stop();
             SchedulerMain.State = BotState.Engaging;
-            Plugin.CombatBackend.Enable();
+            Plugin.CombatBackend.Enable(target.NameId);
             engageStartTick = Environment.TickCount64;
             var hp = target is IBattleChara c && c.MaxHp > 0 ? (int)(c.CurrentHp * 100 / c.MaxHp) : -1;
             Plugin.Telemetry?.Log($"engage: target={target.Name} hp={hp}% dist={Vector3.Distance(Player.Position, target.Position):0} " +

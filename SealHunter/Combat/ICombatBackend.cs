@@ -11,8 +11,9 @@ public interface ICombatBackend
     /// <summary>Whether the backing plugin is installed and its IPC is reachable.</summary>
     bool Installed { get; }
 
-    /// <summary>Begin autorotation (kills the currently-targeted enemy).</summary>
-    void Enable();
+    /// <summary>Begin autorotation (kills the currently-targeted enemy). <paramref name="targetNameId"/>
+    /// is that enemy's BNpcName id, for a backend that has to be told the mob is fair game.</summary>
+    void Enable(uint targetNameId);
 
     /// <summary>Stop autorotation.</summary>
     void Disable();

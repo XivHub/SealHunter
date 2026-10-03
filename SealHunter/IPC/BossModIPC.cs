@@ -63,7 +63,7 @@ public class BossModIPC : ICombatBackend
         }
     }
 
-    public void Enable()
+    public void Enable(uint targetNameId)
     {
         try
         {

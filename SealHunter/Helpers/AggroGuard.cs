@@ -36,7 +36,7 @@ public static class AggroGuard
             return false;
         // Enabling is several IPC calls and a preset rebuild, so only on the transition.
         if (!Plugin.CombatBackend.IsActive())
-            Plugin.CombatBackend.Enable();
+            Plugin.CombatBackend.Enable(foe.NameId);
         // Ranged jobs stripped BossMod's pathfinder, so nothing else closes the gap.
         CombatPositioning.Maintain(foe);
         return false;
