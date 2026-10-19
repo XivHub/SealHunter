@@ -20,11 +20,11 @@ public static class SealHunterGuard
         && !Plugin.Condition[ConditionFlag.Occupied38]
         && !Plugin.Condition[ConditionFlag.Occupied39];
 
-    /// <summary>A duty/instance is loading or active (e.g. a queue popped). The loop pauses until clear.</summary>
+    /// <summary>A duty/instance is active. The loop pauses until clear. Sitting in a duty finder queue
+    /// (<c>WaitingForDutyFinder</c>, <c>InDutyQueue</c>) is deliberately not a pause: a roulette queue
+    /// can last many minutes, and hunting while it waits is the point.</summary>
     public static bool InOrEnteringDuty() =>
-        Plugin.Condition[ConditionFlag.WaitingForDutyFinder]
-        || Plugin.Condition[ConditionFlag.InDutyQueue]
-        || Plugin.Condition[ConditionFlag.BoundByDuty]
+        Plugin.Condition[ConditionFlag.BoundByDuty]
         || Plugin.Condition[ConditionFlag.BoundByDuty56]
         || Plugin.Condition[ConditionFlag.BoundByDuty95];
 }
