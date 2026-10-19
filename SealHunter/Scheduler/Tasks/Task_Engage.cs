@@ -53,6 +53,7 @@ public static class Task_Engage
         var nextPatrolTick = Environment.TickCount64 + 3000; // idle 3s before first roam
         var patrolIndex = 0;
         var lastPathPos = Vector3.Zero;
+        var lastPathFlying = false;
         long engageStartTick = 0; // set when the Engage step fires, for kill-time stats
         long mountSince = 0;
         var mountFailed = false;
@@ -197,11 +198,15 @@ public static class Task_Engage
             var idle = !Plugin.Navmesh.PathfindInProgress() && !Plugin.Navmesh.IsRunning();
             var closeBy = dist <= 15f;
             var moved = Vector3.Distance(target.Position, lastPathPos) > 3f;
-            if ((idle || (closeBy && moved)) && EzThrottler.Throttle("SH.Approach", 700))
+            var flying = Player.Mounted && Plugin.C.UseFlight
+                         && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
+            // A fly path aimed at the mob's centre never completes once we have dismounted: vnavmesh
+            // keeps "running" without moving us, parked short of attack range until the mob moves.
+            var modeChanged = flying != lastPathFlying;
+            if ((idle || modeChanged || (closeBy && moved)) && EzThrottler.Throttle("SH.Approach", 700))
             {
                 lastPathPos = target.Position;
-                var flying = Player.Mounted && Plugin.C.UseFlight
-                             && FlightHelper.FlyingUnlocked(Plugin.ClientState.TerritoryType);
+                lastPathFlying = flying;
                 // Flying: head straight to the mob; grounded: stop a standoff distance short.
                 var dest = flying ? target.Position : CombatPositioning.StandoffPoint(target.Position, Player.Position, range);
                 Plugin.Navmesh.PathTo(dest, flying);
