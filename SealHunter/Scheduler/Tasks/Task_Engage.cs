@@ -28,6 +28,13 @@ public static class Task_Engage
     /// going to (no mounting in this area, or something keeps interrupting it).</summary>
     private const long MountTimeoutMs = 5000;
 
+    /// <summary>How long to keep walking toward a mob that is within reach but behind collision
+    /// before fighting from where we stand.</summary>
+    private const long LineOfSightGraceMs = 3000;
+
+    /// <summary>An approach still walking after this long is logged once with its full state.</summary>
+    private const long ApproachStallLogMs = 10000;
+
     public static void Enqueue()
     {
         var entry = SchedulerMain.Current;
@@ -57,6 +64,9 @@ public static class Task_Engage
         long engageStartTick = 0; // set when the Engage step fires, for kill-time stats
         long mountSince = 0;
         var mountFailed = false;
+        long blockedSince = 0;
+        long approachStart = 0;
+        var stallLogged = false;
 
         // Locate within a bounded window, roaming the camp on a ring around the hint when nothing
         // spawns at the arrival point — covers more of the camp than a stationary 60y scan.
@@ -141,13 +151,42 @@ public static class Task_Engage
 
             TargetingHelper.SetTarget(target);
             var dist = Vector3.Distance(Player.Position, target.Position);
+            if (approachStart == 0)
+                approachStart = Environment.TickCount64;
 
             // Stop where this job actually attacks from — a bard has no reason to close to melee.
             // Without line of sight, halve the remaining gap instead: terrain has to be walked
             // around, and repeating that each frame converges on a spot that can see the mob.
-            var range = CombatRange.AttackRange(target);
-            if (!LineOfSight.Clear(target))
+            var reach = CombatRange.AttackRange(target);
+            var range = reach;
+            var los = LineOfSight.Clear(target);
+            if (!los)
                 range = Math.Min(range, dist) / 2f;
+
+            if (!stallLogged && Environment.TickCount64 - approachStart > ApproachStallLogMs)
+            {
+                stallLogged = true;
+                Plugin.Telemetry?.Log($"approach stalled: dist={dist:0.0} reach={reach:0.0} range={range:0.0} los={los} mounted={Player.Mounted} " +
+                    $"navRun={Plugin.Navmesh.IsRunning()} navBusy={Plugin.Navmesh.PathfindInProgress()} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
+            }
+
+            // Within reach but the ray is blocked and walking closer changes nothing (the halved
+            // range converges on the mob's own spot): fight from here, the mob closes the gap once
+            // it is hit, and the combat loop repositions.
+            if (!los && dist <= reach && !Player.Mounted)
+            {
+                if (blockedSince == 0)
+                    blockedSince = Environment.TickCount64;
+                else if (Environment.TickCount64 - blockedSince > LineOfSightGraceMs)
+                {
+                    Plugin.Telemetry?.Log($"approach: line of sight blocked at dist={dist:0} reach={reach:0.0}, engaging anyway");
+                    return true;
+                }
+            }
+            else
+            {
+                blockedSince = 0;
+            }
 
             // Elevated target (e.g. Ixali platforms) needs a flying approach.
             var heightDiff = Math.Abs(target.Position.Y - Player.Position.Y);
@@ -210,7 +249,7 @@ public static class Task_Engage
                 // Flying: head straight to the mob; grounded: stop a standoff distance short.
                 var dest = flying ? target.Position : CombatPositioning.StandoffPoint(target.Position, Player.Position, range);
                 Plugin.Navmesh.PathTo(dest, flying);
-                Plugin.Telemetry?.Log($"approach repath dist={dist:0} h={heightDiff:0} fly={flying} idle={idle}");
+                Plugin.Telemetry?.Log($"approach repath dist={dist:0.0} range={range:0.0} los={los} h={heightDiff:0} fly={flying} idle={idle}");
             }
             return false;
         }, "Approach target", new TaskManagerConfiguration { TimeLimitMS = 120000, AbortOnTimeout = false });

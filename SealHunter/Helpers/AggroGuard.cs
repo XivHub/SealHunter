@@ -1,5 +1,7 @@
+using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.GameHelpers;
 using XivHubPluginKit.Game;
 
 namespace SealHunter.Helpers;
@@ -17,6 +19,8 @@ public static class AggroGuard
     /// carry on, false while an attacker is being dealt with — call it every frame until it is true.
     /// <paramref name="ignore"/> is the mob the caller is already on its way to fight: that one
     /// attacking us is not a diversion, it is the plan.</summary>
+    private static ulong loggedFoe;
+
     public static bool Clear(IBattleNpc? ignore = null)
     {
         if (!Plugin.Condition[ConditionFlag.InCombat])
@@ -26,6 +30,11 @@ public static class AggroGuard
         if (foe == null)
             return Release();
 
+        if (foe.GameObjectId != loggedFoe)
+        {
+            loggedFoe = foe.GameObjectId;
+            Plugin.Telemetry?.Log($"aggro: foe={foe.Name} dist={Vector3.Distance(Player.Position, foe.Position):0}");
+        }
         // Drop whatever we were walking toward: dragging the mob along just spreads the fight over
         // the whole route, and the destination is worthless until we are out of combat anyway.
         if (Plugin.Navmesh.IsRunning() || Plugin.Navmesh.PathfindInProgress())
@@ -44,6 +53,11 @@ public static class AggroGuard
 
     private static bool Release()
     {
+        if (loggedFoe != 0)
+        {
+            loggedFoe = 0;
+            Plugin.Telemetry?.Log("aggro: clear");
+        }
         if (Plugin.CombatBackend.IsActive())
             Plugin.CombatBackend.Disable();
         return true;

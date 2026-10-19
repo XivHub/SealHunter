@@ -330,13 +330,22 @@ public static class SchedulerMain
         var prog = t == null ? "" : $"{t.Killed}/{t.Required}";
         var tgt = Plugin.TargetManager.Target;
         var tgtHp = tgt is IBattleChara bc && bc.MaxHp > 0 ? (int)(bc.CurrentHp * 100 / bc.MaxHp) : -1;
+        var tgtDist = -1f;
+        var tgtRange = -1f;
+        var tgtLos = false;
+        if (tgt is IBattleNpc npc && Player.Available)
+        {
+            tgtDist = Vector3.Distance(pos, npc.Position);
+            tgtRange = CombatRange.AttackRange(npc);
+            tgtLos = XivHubPluginKit.Game.LineOfSight.Clear(npc);
+        }
         return $"state={State} action=\"{CurrentAction}\" target={t?.Monster.Name ?? "-"} prog={prog} " +
                $"elapsed={CurrentTargetElapsedSeconds}s terri={Plugin.ClientState.TerritoryType} " +
                $"pos=({pos.X:0},{pos.Y:0},{pos.Z:0}) navRun={Plugin.Navmesh.IsRunning()} " +
                $"navBusy={Plugin.Navmesh.PathfindInProgress()} inCombat={Plugin.Condition[ConditionFlag.InCombat]} " +
                $"botCombat={Plugin.CombatBackend.IsActive()} backend={Plugin.CombatBackend.Name}:{Plugin.CombatBackend.ReportedState()} " +
                $"mounted={Player.Mounted} flying={Plugin.Condition[ConditionFlag.InFlight]} casting={Player.IsCasting} " +
-               $"hasTgt={tgt != null} tgtHp={tgtHp}% queued={Plugin.TaskManager.NumQueuedTasks}";
+               $"hasTgt={tgt != null} tgtHp={tgtHp}% tgtDist={tgtDist:0.0} range={tgtRange:0.0} los={tgtLos} queued={Plugin.TaskManager.NumQueuedTasks}";
     }
 
     private static void EnterPause(BotState pause)
