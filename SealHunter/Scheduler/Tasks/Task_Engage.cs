@@ -1,3 +1,4 @@
+using System.Globalization;
 using System;
 using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
@@ -166,7 +167,7 @@ public static class Task_Engage
             if (!stallLogged && Environment.TickCount64 - approachStart > ApproachStallLogMs)
             {
                 stallLogged = true;
-                Plugin.Telemetry?.Log($"approach stalled: dist={dist:0.0} reach={reach:0.0} range={range:0.0} los={los} mounted={Player.Mounted} " +
+                Plugin.Telemetry?.Log($"approach stalled: dist={dist.ToString("0.0", CultureInfo.InvariantCulture)} reach={reach.ToString("0.0", CultureInfo.InvariantCulture)} range={range.ToString("0.0", CultureInfo.InvariantCulture)} los={los} mounted={Player.Mounted} " +
                     $"navRun={Plugin.Navmesh.IsRunning()} navBusy={Plugin.Navmesh.PathfindInProgress()} inCombat={Plugin.Condition[ConditionFlag.InCombat]}");
             }
 
@@ -179,7 +180,7 @@ public static class Task_Engage
                     blockedSince = Environment.TickCount64;
                 else if (Environment.TickCount64 - blockedSince > LineOfSightGraceMs)
                 {
-                    Plugin.Telemetry?.Log($"approach: line of sight blocked at dist={dist:0} reach={reach:0.0}, engaging anyway");
+                    Plugin.Telemetry?.Log($"approach: line of sight blocked at dist={dist:0} reach={reach.ToString("0.0", CultureInfo.InvariantCulture)}, engaging anyway");
                     return true;
                 }
             }
@@ -249,7 +250,7 @@ public static class Task_Engage
                 // Flying: head straight to the mob; grounded: stop a standoff distance short.
                 var dest = flying ? target.Position : CombatPositioning.StandoffPoint(target.Position, Player.Position, range);
                 Plugin.Navmesh.PathTo(dest, flying);
-                Plugin.Telemetry?.Log($"approach repath dist={dist:0.0} range={range:0.0} los={los} h={heightDiff:0} fly={flying} idle={idle}");
+                Plugin.Telemetry?.Log($"approach repath dist={dist.ToString("0.0", CultureInfo.InvariantCulture)} range={range.ToString("0.0", CultureInfo.InvariantCulture)} los={los} h={heightDiff:0} fly={flying} idle={idle}");
             }
             return false;
         }, "Approach target", new TaskManagerConfiguration { TimeLimitMS = 120000, AbortOnTimeout = false });

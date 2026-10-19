@@ -1,3 +1,4 @@
+using System.Globalization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -345,7 +346,7 @@ public static class SchedulerMain
                $"navBusy={Plugin.Navmesh.PathfindInProgress()} inCombat={Plugin.Condition[ConditionFlag.InCombat]} " +
                $"botCombat={Plugin.CombatBackend.IsActive()} backend={Plugin.CombatBackend.Name}:{Plugin.CombatBackend.ReportedState()} " +
                $"mounted={Player.Mounted} flying={Plugin.Condition[ConditionFlag.InFlight]} casting={Player.IsCasting} " +
-               $"hasTgt={tgt != null} tgtHp={tgtHp}% tgtDist={tgtDist:0.0} range={tgtRange:0.0} los={tgtLos} queued={Plugin.TaskManager.NumQueuedTasks}";
+               $"hasTgt={tgt != null} tgtHp={tgtHp}% tgtDist={tgtDist.ToString("0.0", CultureInfo.InvariantCulture)} range={tgtRange.ToString("0.0", CultureInfo.InvariantCulture)} los={tgtLos} queued={Plugin.TaskManager.NumQueuedTasks}";
     }
 
     private static void EnterPause(BotState pause)
