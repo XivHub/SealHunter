@@ -56,7 +56,7 @@ public static class Task_Travel
         // mounted, and vnavmesh only takes off if we're already mounted when it gets a fly path.
         tm.Enqueue(() =>
         {
-            SchedulerMain.CurrentHint = MapCoords.WorldHint(loc.Terri, loc.Map, loc.xCoord, loc.yCoord);
+            SchedulerMain.CurrentHint = MapCoords.WorldHint(loc.Map, loc.xCoord, loc.yCoord);
             SchedulerMain.State = BotState.Navigating;
             var dist = Vector3.Distance(Player.Position, SchedulerMain.CurrentHint);
             if (dist <= MountDistance || !(Plugin.C.UseMount || Plugin.C.UseFlight))

@@ -102,7 +102,7 @@ public static class SchedulerMain
         return all.Where(l => l.IsOpenWorld)
             .OrderBy(l => l.Terri == here ? 0 : 1)
             .ThenBy(l => l.Terri == here
-                ? Vector3.Distance(pos, MapCoords.MapToWorldFlat(l.Terri, l.Map, l.xCoord, l.yCoord) with { Y = pos.Y })
+                ? Vector3.Distance(pos, MapCoords.MapToWorldFlat(l.Map, l.xCoord, l.yCoord) with { Y = pos.Y })
                 : 0f)
             .ToList();
     }
