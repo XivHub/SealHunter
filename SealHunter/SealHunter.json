@@ -3,8 +3,7 @@
   "Name": "SealHunter",
   "Punchline": "Clears your Grand Company or class/job hunting log for you.",
   "Description": "Works through a hunting log for you: the Grand Company log for seals, or your current class/job log for XP. Pick which in settings. It teleports and flies to each zone, walks to the targets with vnavmesh and kills the marks with BossMod Reborn's autorotation.\n\nNeeds vnavmesh, Lifestream and BossMod Reborn. AutoDuty is optional and handles the dungeon marks in the Grand Company log.",
-  "RepoUrl": "https://github.com/edg-l/SealHunter",
-  "IconUrl": "https://raw.githubusercontent.com/edg-l/SealHunter/master/SealHunter/images/icon.png",
+  "RepoUrl": "https://github.com/XivHub/SealHunter",
   "InternalName": "SealHunter",
   "ApplicableVersion": "any",
   "Tags": [

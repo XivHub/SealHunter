@@ -6,7 +6,7 @@
 		<Version>0.8.12</Version>
 		<Description>Automates the Grand Company hunting log.</Description>
 		<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/edg-l/SealHunter</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/XivHub/SealHunter</PackageProjectUrl>
 		<IsPackable>false</IsPackable>
 		<LangVersion>latest</LangVersion>
 		<AssemblyName>SealHunter</AssemblyName>
